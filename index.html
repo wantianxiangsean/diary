@@ -1,0 +1,2039 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="generator" content="diary v4">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>每日日记 · 1% 精进</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='14' fill='%231B75BB'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle' fill='%23fff' font-family='sans-serif'%3E%E6%97%A5%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --blue:#1B75BB;
+    --blue-dark:#155F99;
+    --orange:#F8E19B;
+    --cream:#FFFFFF;
+    --lblue:#E4F0F7;
+    --red:#E8481F;
+    --line:#6f6f6f;
+    --focus:#FFF3CF;
+    --hair:#ECECEC;
+    --box:#E4E4E4;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:#f2f2f2;
+    color:#111;
+    font-family:"KaiTi","楷体","Kaiti SC","Kaiti TC","STKaiti","华文楷体","楷体_GB2312","DFKai-SB",serif;
+    font-size:17.5px;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ================= 顶部工具栏（不打印） ================= */
+  .topbar{
+    position:sticky;top:0;z-index:60;
+    display:flex;flex-wrap:wrap;align-items:center;gap:7px;
+    padding:9px 14px;background:#fff;border-bottom:1px solid #dcdcdc;
+    box-shadow:0 1px 4px rgba(0,0,0,.07);
+  }
+  .brand{font-weight:700;color:var(--blue);margin-right:4px;white-space:nowrap}
+  .topbar button{
+    font:inherit;font-size:15.5px;color:#222;background:#fafafa;
+    border:1px solid #cfcfcf;border-radius:6px;padding:5px 11px;cursor:pointer;
+    white-space:nowrap;transition:.15s;
+  }
+  .topbar button:hover{background:#eef5fb;border-color:#9dc4e2}
+  .topbar button.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  .topbar button.primary:hover{background:var(--blue-dark);border-color:var(--blue-dark)}
+  .topbar button.icon{padding:5px 10px;line-height:1.2}
+  .topbar button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .topbar button:disabled{opacity:.42;cursor:default}
+  .topbar button:disabled:hover{background:#fafafa;border-color:#cfcfcf}
+  .topbar input[type="date"]{
+    font:inherit;font-size:15.5px;padding:4px 8px;border:1px solid #cfcfcf;
+    border-radius:6px;background:#fff;color:#222;
+  }
+  .spacer{flex:1 1 auto}
+  .status{font-size:14.5px;color:#8b8b8b;min-width:80px;text-align:right}
+  .status.saving{color:#c98a2e}
+  .status.saved{color:var(--blue)}
+
+  /* ================= 纸张 ================= */
+  .page{
+    width:min(900px,100%);
+    margin:22px auto 70px;
+    background:#fff;
+    padding:40px clamp(16px,4.2vw,54px) 62px;
+    box-shadow:0 1px 5px rgba(0,0,0,.18);
+  }
+
+  /* ================= 富文本编辑区 ================= */
+  .ed{
+    font:inherit;color:inherit;background:transparent;
+    border:0;border-radius:4px;padding:2px 4px;
+    min-height:1.65em;line-height:1.62;
+    white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;
+    outline:none;transition:background .15s,box-shadow .15s;
+  }
+  .ed:focus{background:var(--focus);box-shadow:inset 0 0 0 1px #E7C97F}
+  .ed:empty::before{content:attr(data-ph);color:#b9b9b9;pointer-events:none}
+  table.doc .ed:empty::before{color:#c3b189}
+  table.doc td.t-head .ed:empty::before,
+  table.doc td.t-sub .ed:empty::before{color:rgba(0,0,0,.32)}
+
+  /* 复选框 */
+  .cb{
+    appearance:none;-webkit-appearance:none;
+    width:15px;height:15px;flex:0 0 auto;margin:0;
+    border:1.4px solid #4a4a4a;background:#fff;border-radius:1px;
+    position:relative;cursor:pointer;vertical-align:-2px;
+  }
+  .cb:checked::after{
+    content:"";position:absolute;left:3.4px;top:0.2px;width:4.6px;height:9.4px;
+    border:2px solid #111;border-top:0;border-left:0;transform:rotate(42deg);
+  }
+
+  /* ================= 抬头 ================= */
+  .motto{margin:0 0 22px}
+  .motto .ed{
+    text-align:center;font-weight:700;font-size:19.5px;color:var(--red);
+    background:#FBFF00;border-bottom:1px dashed rgba(0,0,0,.18);
+    border-radius:0;padding:4px 6px;
+  }
+  .motto .ed:hover{background:#F2F600}
+  .motto .ed:focus{background:#F2F600;border-bottom-color:transparent}
+  .lab-red{color:var(--red);font-weight:700}
+  .day .daywhat{display:inline-block;width:auto;min-width:220px;color:#413E3E}
+  .drows{margin-top:2px}
+  .drow{display:flex;align-items:center;gap:2px;max-width:360px}
+  .drow > span{flex:0 0 auto}
+  .drow .ed{flex:1 1 auto}
+
+  /* 清晨自问 */
+  .morning{margin-top:18px}
+  .qlist{margin-top:2px}
+  .qrow{display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:1px solid var(--hair)}
+  .qrow .cb{margin-top:6px}
+  .qrow .qtext{flex:0 0 auto;white-space:nowrap}
+  .qrow .ed{flex:1 1 auto}
+  @media (max-width:620px){
+    .qrow{flex-wrap:wrap}
+    .qrow .qtext{white-space:normal}
+  }
+
+  /* ================= 小节外框 ================= */
+  .sec{
+    border:1px solid var(--box);border-radius:4px;overflow:hidden;margin:22px 0 0;
+  }
+  .sec > .banner{margin:0;border-radius:0}
+  .sec-body{padding:10px 14px 14px}
+  .banner{
+    background:var(--blue);color:#fff;font-weight:700;font-size:18.5px;
+    padding:5px 12px;letter-spacing:.01em;
+  }
+
+  /* ================= 橙红小标题 ================= */
+  .idx-red{margin:22px 0 5px}
+  .idx-red .ed{
+    color:#fff;font-weight:700;font-size:19px;
+    border:1px solid #EB1E1E;border-radius:6px;background:#EB1E1E;
+    padding:3px 10px;width:auto;min-width:250px;
+  }
+  .idx-red .ed:empty::before{color:rgba(255,255,255,.72)}
+  .idx-red .ed:focus{color:#fff}
+  .idx-black{margin:6px 0 4px}
+  .idx-black .ed{
+    color:var(--red);font-weight:700;font-size:17.5px;
+    border:1px solid #eee;border-radius:5px;padding:2px 8px;
+    width:auto;min-width:250px;background:#fff;
+  }
+  .idx-sub{margin:14px 0 2px;font-weight:700}
+
+  /* ================= 年度目标条目 ================= */
+  .goals{margin:1px 0 4px}
+  .goal{display:flex;align-items:flex-start;gap:2px;padding:3px 0;border-bottom:1px solid var(--hair)}
+  .goal .bul{flex:0 0 auto;width:16px;text-align:center}
+  .goal .g-title{flex:0 0 132px}
+  .goal .g-sep{flex:0 0 auto}
+  .goal .g-content{flex:1 1 auto}
+  .goal .cellbtn{position:static;flex:0 0 auto;opacity:0}
+  .goal:hover .cellbtn{opacity:1}
+  .toolrow{margin:4px 0 4px}
+
+  /* ================= 表格 ================= */
+  .tblwrap{position:relative;margin:5px 0 4px}
+  .tbl-bar{display:flex;align-items:center;gap:8px;justify-content:flex-end;min-height:24px}
+  .tbl-hint{font-size:14px;color:#9aa7b1;margin-right:auto}
+  .tbl-toggle{
+    font:inherit;font-size:14.5px;color:#66727c;background:#fff;
+    border:1px solid #dbe2e8;border-radius:6px;padding:2px 9px;cursor:pointer;
+  }
+  .tbl-toggle:hover{border-color:var(--blue);color:var(--blue)}
+  .tbl-toggle.on{background:var(--blue);border-color:var(--blue);color:#fff}
+
+  table.doc{width:100%;border-collapse:collapse;font-size:17px;table-layout:fixed}
+  table.doc td{
+    background:var(--cream);border:1px solid var(--line);
+    padding:3px 9px;vertical-align:middle;position:relative;
+  }
+  table.doc td.t-head,table.doc td.t-sub{
+    background:var(--orange);color:#1c1c1c;font-weight:700;border:1px solid var(--line);
+  }
+  table.doc td.t-head{text-align:center;padding:5px 6px}
+  table.doc td.t-head .ed{text-align:center}
+  table.doc td.t-sub{text-align:left;padding:5px 9px}
+  table.doc td.t-cat{font-weight:700;text-align:left;vertical-align:middle;padding:4px 6px;color:#413E3E}
+  table.doc td.t-cat .ed{font-weight:700}
+
+  /* 表格编辑模式 */
+  .tblwrap.editing table.doc{touch-action:none}
+  .tblwrap.editing table.doc .ed{pointer-events:none;user-select:none;-webkit-user-select:none}
+  .tblwrap.editing table.doc td{cursor:cell}
+  td.sel::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:rgba(27,117,187,.12);
+    box-shadow:inset 0 0 0 2px var(--blue);
+  }
+  .tbl-overlay{position:absolute;pointer-events:none;z-index:6}
+  .chandle{position:absolute;top:0;bottom:0;width:11px;margin-left:-5.5px;cursor:col-resize;pointer-events:auto}
+  .chandle::after{content:"";position:absolute;left:5px;top:0;bottom:0;width:1px;background:#bfd6e6}
+  .chandle:hover::after{background:var(--blue);width:2px;left:4.5px}
+  .rhandle{position:absolute;left:0;right:0;height:11px;margin-top:-5.5px;cursor:row-resize;pointer-events:auto}
+  .rhandle::after{content:"";position:absolute;top:5px;left:0;right:0;height:1px;background:#bfd6e6}
+  .rhandle:hover::after{background:var(--blue);height:2px;top:4.5px}
+
+  .tbl-tools{
+    position:absolute;z-index:30;display:flex;gap:3px;flex-wrap:wrap;max-width:100%;
+    background:#fff;border:1px solid #ccd8e2;border-radius:8px;padding:3px;
+    box-shadow:0 6px 18px -8px rgba(0,0,0,.45);
+  }
+  .tbl-tools[hidden]{display:none}
+  .tbl-tools button{
+    font:inherit;font-size:14.5px;color:#31404c;background:#f7fafc;
+    border:1px solid #dde5ec;border-radius:5px;padding:3px 8px;cursor:pointer;white-space:nowrap;
+  }
+  .tbl-tools button:hover:not(:disabled){background:#eaf3fa;border-color:#9dc4e2;color:var(--blue)}
+  .tbl-tools button:disabled{opacity:.38;cursor:default}
+
+  .addbtn{
+    font:inherit;font-size:15px;color:var(--blue);background:transparent;
+    border:1px dashed #b9c9d6;border-radius:6px;padding:3px 10px;cursor:pointer;
+    margin:2px 0 4px;
+  }
+  .addbtn:hover{border-color:var(--blue);background:#f0f7fc}
+  .cellbtn{
+    border:0;background:transparent;color:#c9b98e;cursor:pointer;
+    font-size:14px;line-height:1;padding:2px 6px;border-radius:4px;
+    opacity:0;transition:.15s;
+  }
+  .cellbtn:hover{color:#b4453c;background:#f6e2df}
+  .cellbtn.inline{position:static;flex:0 0 auto;opacity:.45}
+  .item-head:hover .cellbtn.inline{opacity:1}
+
+  /* ================= 正文输入区 ================= */
+  .ed.block{padding:2px 4px;margin-bottom:2px}
+  .ed.block.line{border-bottom:1px solid #e4e4e4;border-radius:0}
+  .ed.block.line:focus{border-bottom-color:transparent;background:var(--focus)}
+
+  /* ================= D 事项 ================= */
+  .items{display:grid;gap:12px;margin:6px 0 4px}
+  .item{border:1px solid #9fc2d6;border-radius:3px;overflow:hidden;background:#fff}
+  .item-head{background:var(--lblue);color:#413E3E;display:flex;align-items:center;gap:4px;padding:3px 10px;font-weight:700}
+  .item-head .no{flex:0 0 auto;font-weight:700}
+  .item-head .ed{font-weight:700;flex:1 1 auto}
+  .item-body{padding:5px 12px 9px}
+  .fl{display:flex;align-items:flex-start;gap:8px;padding:1px 0}
+  .fl .cb{margin-top:6px}
+  .fl .sig{flex:0 0 auto;width:13px;text-align:center;color:#111;line-height:1.62}
+  .fl .ed{flex:1 1 auto}
+
+  /* ================= H / I ================= */
+  .hline{display:flex;align-items:center;gap:2px;max-width:560px}
+  .hline > span{flex:0 0 auto}
+  .hline .ed{flex:1 1 auto}
+  .habits{display:grid;gap:2px;margin-top:6px}
+  .habit{display:flex;align-items:center;gap:8px}
+  .habit .hname{flex:0 0 auto;white-space:nowrap}
+  .habit .note{flex:0 1 340px;color:#C0562F;font-style:italic;font-size:16.5px}
+  @media (max-width:620px){
+    .habit{flex-wrap:wrap}
+    .habit .note{flex:1 1 100%}
+  }
+
+  /* ================= 选择模式：整页文字可连续框选 ================= */
+  #app.select-mode{cursor:text}
+  #app.select-mode .ed{background:transparent;box-shadow:none}
+
+  /* ================= 文字颜色浮条 ================= */
+  .colorbar{
+    position:fixed;z-index:200;display:flex;align-items:center;gap:6px;
+    background:#fff;border:1px solid #ccd8e2;border-radius:10px;
+    padding:4px 10px;box-shadow:0 8px 22px -10px rgba(0,0,0,.55);
+    font-size:14px;color:#66727c;
+  }
+  .colorbar[hidden]{display:none}
+  .colorbar .cb-label{white-space:nowrap;color:#939ea8}
+  .colorbar .sw{
+    width:18px;height:18px;border-radius:50%;padding:0;cursor:pointer;
+    border:1px solid rgba(0,0,0,.18);background:#fff;transition:transform .12s;
+  }
+  .colorbar .sw:hover{transform:scale(1.14)}
+  .colorbar .sw-none{
+    background-image:linear-gradient(45deg,transparent 43%,#cf4b3c 43%,#cf4b3c 57%,transparent 57%);
+  }
+
+  .foot{text-align:center;color:#a9a9a9;font-size:14.5px;margin-top:34px}
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translate(-50%,16px);
+    background:#1a1a1a;color:#fff;padding:9px 18px;border-radius:9px;
+    font-size:15.5px;opacity:0;pointer-events:none;transition:.22s;z-index:99;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  /* ================= 打印 ================= */
+  @media print{
+    @page{margin:12mm}
+    html,body{background:#fff}
+    body{font-size:14px}
+    .topbar,.addbtn,.cellbtn,.toolrow,.toast,.copynote,
+    .tbl-bar,.tbl-overlay,.tbl-tools,.colorbar{display:none !important}
+    .page{box-shadow:none;margin:0;width:auto;padding:0;max-width:none}
+    .banner,.item,.sec,table.doc tr,.goal{break-inside:avoid}
+    .ed{background:transparent !important;box-shadow:none !important}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="brand">每日日记</span>
+  <button class="icon" id="prevDay" title="前一天">‹</button>
+  <input type="date" id="datePick">
+  <button class="icon" id="nextDay" title="后一天">›</button>
+  <button id="todayBtn">今天</button>
+  <button id="undoBtn" title="上一步（Ctrl+Z）">↶ 上一步</button>
+  <button id="redoBtn" title="下一步（Ctrl+Y）">↷ 下一步</button>
+  <span class="spacer"></span>
+  <span class="status" id="status"></span>
+  <button id="copyPrev" title="把最近一份记录的内容填入本篇">复制上一次记录</button>
+  <button id="fillTpl">示例内容</button>
+  <button id="clearDay">清空本篇</button>
+  <button id="copyMd">复制 Markdown</button>
+  <button id="selectMode" title="整页文字可任意框选、复制">选择模式</button>
+  <button class="primary" id="exportMd">导出 .md</button>
+  <button id="printBtn">打印 / PDF</button>
+</div>
+
+<div class="page">
+  <div id="app"></div>
+  <p class="foot">内容自动保存在本机浏览器中，按日期分别存档 · Ctrl/⌘ + S 立即保存</p>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     固定结构
+     ============================================================ */
+  const MORNING_QUESTIONS = [
+    "我今天的目标是什么？",
+    "我的终极人生目标是什么？",
+    "今天最重要的一件事是什么？",
+    "我今天如何与周围的人相处？",
+    "我今天要学哪些新知识？",
+    "我今天要有怎样的心情？",
+    "我今天怎样比昨天做的更好？"
+  ];
+
+  const HABITS = [
+    "早起","午睡","早睡","阅读","跑步/游泳","静坐/冥想","不吃甜食",
+    "整理","检视","泡脚","运动","反思，但不抱怨","着装整齐","情绪管理",
+    "积极语言，语速放慢，三思发言，不打断他人",
+    "“待处理”文件夹清理/Email清理/笔记理解归档",
+    "了解1个伙伴产品","发现一个周围人的优秀习惯"
+  ];
+
+  const D_COUNT = 5;
+  const DATA_VERSION = 3;
+  const COPY_LOOKBACK_DAYS = 30;
+
+  const COLOR_SWATCHES = [
+    { c:"",        t:"默认（去掉选中部分的颜色）" },
+    { c:"#111111", t:"黑" },
+    { c:"#E8481F", t:"红" },
+    { c:"#E8A020", t:"橙" },
+    { c:"#2E7D32", t:"绿" },
+    { c:"#1B75BB", t:"蓝" }
+  ];
+
+  /* ============================================================
+     示例内容
+     ============================================================ */
+  const TEMPLATE = {
+    motto:"每天使用1%的时间，进步1%，成为1%的人！",
+    sunrise:"6:12", sunset:"19:45", wake:"6:30", sleep:"23:30",
+    morning:["","","完成本周计划里的一件要事","以礼貌的方式与周围的人相处",
+             "学习一个新知识点并做笔记","保持平和的心情","开始记录今天的日记"],
+    morningDone:[false,false,false,false,false,false,false],
+    annualTitle:"2026年度关键目标记录：",
+    work:[
+      ["专业能力","①系统梳理业务知识 ②完成一份方案文档"],
+      ["行业能力","①行业基础研究 ②竞品分析"],
+      ["方案能力","①搭建分析框架 ②输出结构化思路"],
+      ["技术能力","①学习一门在线课程 ②动手做一个小练习"],
+      ["流程能力","①熟悉工作流程 ②整理一份检查清单"],
+      ["沟通能力","①练习表达 ②记录一次复盘"]
+    ],
+    life:[
+      ["子女教育","每天陪伴阅读30分钟，周末安排一次亲子活动"],
+      ["健康习惯","养成早睡早起（23点睡，6:30起）、规律锻炼的习惯"],
+      ["阅读习惯","读完一本书，每天固定时间阅读并做读书笔记"]
+    ],
+    monthlyTitle:"2025年1月份关键目标：",
+    monthlyGroups:[
+      { cat:"事业", rows:[
+        { sub:"专业", content:"①整理本月的核心任务清单", method:"" },
+        { sub:"", content:"②完成一份基础研究", method:"每天1小时，5天内完成" },
+        { sub:"", content:"③学习一门在线课程", method:"每天0.5讲" },
+        { sub:"", content:"", method:"" }
+      ]},
+      { cat:"其它目标", rows:[
+        { sub:"财富", content:"制定月度储蓄计划", method:"记录每笔支出" },
+        { sub:"社交", content:"每月一次朋友聚会", method:"提前一周约时间" },
+        { sub:"家庭", content:"", method:"" },
+        { sub:"效能", content:"每天6:30起床；23:00 睡觉", method:"工作日22:30写日记，周日整理周记" },
+        { sub:"旅行", content:"安排一次短途旅行", method:"" },
+        { sub:"学习", content:"读完一本管理类书籍", method:"每天阅读30分钟" },
+        { sub:"健康", content:"运动-早上20min锻炼；饮食-规律三餐", method:"每周三次有氧运动" }
+      ]}
+    ],
+    weeklyTitle:"1月份第4周",
+    weeklyPriority:[
+      { code:"A1", target:"梳理本周任务清单" },
+      { code:"A2", target:"完成准备中的那份材料" },
+      { code:"A3", target:"整理一份月度计划" },
+      { code:"A4", target:"" }
+    ],
+    weeklyOtherTitle:"本周其他目标",
+    weeklyOther:[
+      { cat:"财富", items:"记录本周支出" },
+      { cat:"社交", items:"" },
+      { cat:"家庭", items:"" },
+      { cat:"效能", items:"" },
+      { cat:"旅行", items:"做一份出行攻略" },
+      { cat:"学习", items:"读书－每天20页" },
+      { cat:"健康", items:"保持规律作息" }
+    ],
+    B:"完成本周的重点材料整理",
+    C:"输出一份初稿",
+    D:[
+      { title:"整理本周材料", p:"已完成初稿，周末会把其中的逻辑串联起来", m:"", s:"" },
+      { title:"学习一门沟通课程，先通听一遍，第二遍再理解复述", p:"开场有模型，提问有模型，讲方案有技巧，闭环有模型", m:"", s:"先想清楚难点在哪里" },
+      { title:"听一本管理类书籍", p:"时间管理的关键是分清轻重缓急，先问自己：不做会怎样。", m:"", s:"" },
+      { title:"在线学习AI基础", p:"了解了神经网络的基本原理与一些常用框架。", m:"", s:"" },
+      { title:"", p:"", m:"", s:"" }
+    ],
+    E:"", F:"", G:"",
+    H:{ steps:"", exercise:"", diet:"" },
+    habitsDone:["早起","阅读","检视","反思，但不抱怨","着装整齐"],
+    habitNotes:{}
+  };
+
+  /* ============================================================
+     基础工具
+     ============================================================ */
+  function todayISO(d){
+    const t = d || new Date();
+    return new Date(t.getTime() - t.getTimezoneOffset()*60000).toISOString().slice(0,10);
+  }
+  function shiftDate(iso, delta){
+    const p = iso.split("-").map(Number);
+    const dt = new Date(p[0], p[1]-1, p[2]);
+    dt.setDate(dt.getDate() + delta);
+    return todayISO(dt);
+  }
+  function cnDate(iso){
+    const p = iso.split("-").map(Number);
+    const dt = new Date(p[0], p[1]-1, p[2]);
+    const wk = "日一二三四五六".charAt(dt.getDay());
+    return p[0] + "年" + p[1] + "月" + p[2] + "日 星期" + wk;
+  }
+  const esc = (s) => String(s == null ? "" : s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  const str = (v) => typeof v === "string" ? v : "";
+  const oneLine = (s) => String(s||"").replace(/\s*\n\s*/g,"；").trim();
+  const cellMd = (s) => oneLine(s).replace(/\|/g,"\\|");
+
+  /* 富文本 ↔ 纯文本 */
+  function htmlToText(html){
+    return String(html == null ? "" : html)
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/(div|p|li|tr)>/gi, "\n")
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&amp;/g, "&");
+  }
+  function rgbToHex(c){
+    const m = /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/.exec(String(c||""));
+    if (m) return "#" + [m[1],m[2],m[3]]
+      .map(function(n){ return ("0" + Number(n).toString(16)).slice(-2); }).join("").toUpperCase();
+    if (/^#[0-9a-fA-F]{6}$/.test(String(c||""))) return String(c).toUpperCase();
+    return "";
+  }
+  /* 只保留文字、<br> 和 <span style="color:#RRGGBB"> */
+  function cleanHtml(html){
+    const src = document.createElement("div");
+    src.innerHTML = String(html == null ? "" : html);
+    const out = document.createElement("div");
+    function walk(from, to){
+      Array.prototype.slice.call(from.childNodes).forEach(function(n){
+        if (n.nodeType === 3){ to.appendChild(document.createTextNode(n.nodeValue)); return; }
+        if (n.nodeType !== 1) return;
+        const tag = n.tagName.toLowerCase();
+        if (tag === "br"){ to.appendChild(document.createElement("br")); return; }
+        if (tag === "span"){
+          const hex = rgbToHex(n.style && n.style.color);
+          if (hex){
+            const sp = document.createElement("span");
+            sp.setAttribute("style", "color:" + hex);
+            walk(n, sp);
+            to.appendChild(sp);
+          }else{
+            walk(n, to);
+          }
+          return;
+        }
+        if (tag === "div" || tag === "p"){
+          if (to.childNodes.length) to.appendChild(document.createElement("br"));
+          walk(n, to);
+          return;
+        }
+        walk(n, to);
+      });
+    }
+    walk(src, out);
+    return out.innerHTML;
+  }
+
+  /* ============================================================
+     网格工具：cell = { t, v(HTML), rs?, cs? }，被覆盖位置为 null
+     ============================================================ */
+  const CELL_TYPES = ["head","sub","cat","body","check"];
+
+  function spanSize(cell){
+    return { rs: Math.max(1, cell.rs || 1), cs: Math.max(1, cell.cs || 1) };
+  }
+  function makeCell(t, v, extra){
+    return Object.assign({ t:t || "body", v:v || "", rs:1, cs:1 }, extra || {});
+  }
+  function normalizeCols(cols){
+    const list = (Array.isArray(cols) ? cols : []).map(function(w){ return Math.max(5, Number(w) || 10); });
+    if (!list.length) return [25,25,25,25];
+    const sum = list.reduce(function(a,b){ return a+b; }, 0);
+    if (!sum) return list.map(function(){ return 100/list.length; });
+    return list.map(function(w){ return (w/sum)*100; });
+  }
+  function canonical(cells, C){
+    const R = cells.length;
+    const out = Array.from({length:R}, function(){ return new Array(C).fill(null); });
+    const used = Array.from({length:R}, function(){ return new Array(C).fill(false); });
+    for (let r=0;r<R;r++){
+      for (let c=0;c<C;c++){
+        const cell = cells[r] && cells[r][c];
+        if (!cell || used[r][c]) continue;
+        const sz = spanSize(cell);
+        const r2 = Math.min(R, r + sz.rs), c2 = Math.min(C, c + sz.cs);
+        out[r][c] = Object.assign({}, cell, { rs: r2-r, cs: c2-c });
+        for (let i=r;i<r2;i++) for (let j=c;j<c2;j++) used[i][j] = true;
+      }
+    }
+    return out;
+  }
+  function coverage(cells, C){
+    const R = cells.length;
+    const cov = Array.from({length:R}, function(){ return new Array(C).fill(false); });
+    for (let r=0;r<R;r++){
+      for (let c=0;c<C;c++){
+        const cell = cells[r][c];
+        if (!cell) continue;
+        const sz = spanSize(cell);
+        for (let i=r;i<Math.min(R, r+sz.rs);i++)
+          for (let j=c;j<Math.min(C, c+sz.cs);j++) cov[i][j] = true;
+      }
+    }
+    return cov;
+  }
+  function anchorAt(g, r, c){
+    for (let i=r;i>=0;i--){
+      for (let j=c;j>=0;j--){
+        const cell = g.cells[i] && g.cells[i][j];
+        if (!cell) continue;
+        const sz = spanSize(cell);
+        if (i<=r && r<i+sz.rs && j<=c && c<j+sz.cs) return { r:i, c:j, cell:cell };
+      }
+    }
+    return null;
+  }
+  function expandRect(g, r1, c1, r2, c2){
+    let changed = true, guard = 0;
+    while (changed && guard++ < 500){
+      changed = false;
+      for (let r=r1;r<=r2;r++){
+        for (let c=c1;c<=c2;c++){
+          const a = anchorAt(g, r, c);
+          if (!a) continue;
+          const sz = spanSize(a.cell);
+          const ar2 = a.r + sz.rs - 1, ac2 = a.c + sz.cs - 1;
+          if (a.r < r1){ r1 = a.r; changed = true; }
+          if (a.c < c1){ c1 = a.c; changed = true; }
+          if (ar2 > r2){ r2 = ar2; changed = true; }
+          if (ac2 > c2){ c2 = ac2; changed = true; }
+        }
+      }
+    }
+    return { r1:r1, c1:c1, r2:r2, c2:c2 };
+  }
+  function anchorsIn(g, rect){
+    const out = [];
+    for (let r=rect.r1;r<=rect.r2;r++){
+      for (let c=rect.c1;c<=rect.c2;c++){
+        const cell = g.cells[r] && g.cells[r][c];
+        if (cell) out.push({ r:r, c:c, cell:cell });
+      }
+    }
+    return out;
+  }
+  function makeGrid(cols, cells){
+    const body = canonical(cells, cols.length);
+    return { cols: normalizeCols(cols), rows: body.map(function(){ return null; }), cells: body };
+  }
+
+  /* ============================================================
+     状态
+     ============================================================ */
+  const LS_PREFIX = "diary.v2.";
+  let state = null;
+  let currentDate = todayISO();
+  let saveTimer = null;
+  let statusEl = null, appEl = null;
+
+  let editingTables = { monthly:false, weekly:false };
+  let selectMode = false;
+  let sel = null;          // { key, r1, c1, r2, c2 }
+  let dragging = null;     // { key, r0, c0 }
+  let colorBar = null;
+
+  function emptyState(){
+    return {
+      __v: DATA_VERSION,
+      motto:"", dayWhat:"",
+      sunrise:"", sunset:"", wake:"", sleep:"",
+      morning: MORNING_QUESTIONS.map(function(){ return ""; }),
+      morningDone: MORNING_QUESTIONS.map(function(){ return false; }),
+      annualTitle:"", annualWorkLabel:"工作", annualLifeLabel:"生活",
+      work:[], life:[],
+      monthlyTitle:"", weeklyTitle:"",
+      tables:{
+        monthly:{
+          cols:[15,15,40,30],
+          rows:[null,null,null],
+          cells:[
+            [ makeCell("head","类别",{cs:2}), null, makeCell("head","目标内容"), makeCell("head","方法和措施") ],
+            [ makeCell("cat",""), makeCell("body",""), makeCell("body",""), makeCell("body","") ],
+            [ makeCell("body",""), makeCell("body",""), makeCell("body",""), makeCell("body","") ]
+          ]
+        },
+        weekly:{
+          cols:[22,78],
+          rows:[null,null,null],
+          cells:[
+            [ makeCell("head","优先顺序"), makeCell("head","本周工作目标") ],
+            [ makeCell("body",""), makeCell("body","") ],
+            [ makeCell("body",""), makeCell("body","") ]
+          ]
+        }
+      },
+      B:"", C:"",
+      D: Array.from({length:D_COUNT}, function(){ return { title:"", p:"", m:"", s:"" }; }),
+      E:"", F:"", G:"",
+      H:{ steps:"", exercise:"", diet:"" },
+      habits: HABITS.map(function(){ return { checked:false, note:"" }; }),
+      __blank:true
+    };
+  }
+
+  function monthlyGridFromGroups(groups){
+    const C = 4;
+    const cells = [[ makeCell("head","类别",{cs:2}), null, makeCell("head","目标内容"), makeCell("head","方法和措施") ]];
+    (groups || []).forEach(function(grp){
+      const rows = (grp && grp.rows) || [];
+      if (!rows.length) return;
+      rows.forEach(function(row, i){
+        const line = new Array(C).fill(null);
+        if (i === 0) line[0] = makeCell("cat", esc(str(grp.cat)), { rs: rows.length });
+        line[1] = makeCell("body", esc(str(row.sub)));
+        line[2] = makeCell("body", esc(str(row.content)));
+        line[3] = makeCell("body", esc(str(row.method)));
+        cells.push(line);
+      });
+    });
+    if (cells.length === 1){
+      cells.push([ makeCell("cat","",{rs:2}), makeCell("body",""), makeCell("body",""), makeCell("body","") ]);
+      cells.push([ null, makeCell("body",""), makeCell("body",""), makeCell("body","") ]);
+    }
+    return makeGrid([15,15,40,30], cells);
+  }
+
+  function weeklyGridFrom(priority, otherTitle, other){
+    const C = 2;
+    const cells = [ [ makeCell("head","优先顺序"), makeCell("head","本周工作目标") ] ];
+    (priority || []).forEach(function(r){
+      cells.push([ makeCell("body", esc(str(r.code))), makeCell("body", esc(str(r.target))) ]);
+    });
+    const others = other || [];
+    if (others.length){
+      cells.push([ makeCell("sub", esc(str(otherTitle) || "本周其他目标"), { cs:C }), null ]);
+      others.forEach(function(r){
+        cells.push([ makeCell("cat", esc(str(r.cat))), makeCell("body", esc(str(r.items))) ]);
+      });
+    }
+    return makeGrid([22,78], cells);
+  }
+
+  function sanitizeGrid(raw, h){
+    if (!raw || !Array.isArray(raw.cols) || !Array.isArray(raw.cells) || !raw.cells.length) return null;
+    const C = raw.cols.length;
+    if (C < 1 || C > 12) return null;
+    const cells = [];
+    for (let r=0;r<raw.cells.length && r<400;r++){
+      const row = raw.cells[r];
+      if (!Array.isArray(row)) continue;
+      const line = new Array(C).fill(null);
+      for (let c=0;c<C;c++){
+        const src = row[c];
+        if (!src) continue;
+        const t = CELL_TYPES.indexOf(src.t) >= 0 ? src.t : "body";
+        line[c] = makeCell(t, h(src.v), {
+          rs: Math.max(1, Math.min(60, Number(src.rs) || 1)),
+          cs: Math.max(1, Math.min(12, Number(src.cs) || 1))
+        });
+      }
+      cells.push(line);
+    }
+    if (!cells.length) return null;
+    const body = canonical(cells, C);
+    return {
+      cols: normalizeCols(raw.cols),
+      rows: body.map(function(_, i){
+        const v = Array.isArray(raw.rows) ? raw.rows[i] : null;
+        return (typeof v === "number" && v > 0) ? Math.min(800, v) : null;
+      }),
+      cells: body
+    };
+  }
+
+  function templateState(){
+    const s = emptyState();
+    s.__blank = false;
+    s.motto = esc(TEMPLATE.motto);
+    s.dayWhat = cnDate(currentDate);
+    s.sunrise = esc(TEMPLATE.sunrise); s.sunset = esc(TEMPLATE.sunset);
+    s.wake = esc(TEMPLATE.wake); s.sleep = esc(TEMPLATE.sleep);
+    s.morning = TEMPLATE.morning.map(esc);
+    s.morningDone = TEMPLATE.morningDone.slice();
+    s.annualTitle = esc(TEMPLATE.annualTitle);
+    s.work = TEMPLATE.work.map(function(r){ return { title:esc(r[0]), content:esc(r[1]) }; });
+    s.life = TEMPLATE.life.map(function(r){ return { title:esc(r[0]), content:esc(r[1]) }; });
+    s.monthlyTitle = esc(TEMPLATE.monthlyTitle);
+    s.weeklyTitle = esc(TEMPLATE.weeklyTitle);
+    s.tables = {
+      monthly: monthlyGridFromGroups(TEMPLATE.monthlyGroups),
+      weekly: weeklyGridFrom(TEMPLATE.weeklyPriority, TEMPLATE.weeklyOtherTitle, TEMPLATE.weeklyOther)
+    };
+    s.B = esc(TEMPLATE.B); s.C = esc(TEMPLATE.C);
+    s.D = TEMPLATE.D.map(function(r){ return { title:esc(r.title), p:esc(r.p), m:esc(r.m), s:esc(r.s) }; });
+    s.E = esc(TEMPLATE.E); s.F = esc(TEMPLATE.F); s.G = esc(TEMPLATE.G);
+    s.H = { steps:esc(TEMPLATE.H.steps), exercise:esc(TEMPLATE.H.exercise), diet:esc(TEMPLATE.H.diet) };
+    s.habits = HABITS.map(function(name){
+      return {
+        checked: TEMPLATE.habitsDone.indexOf(name) >= 0,
+        note: esc(TEMPLATE.habitNotes[name] || "")
+      };
+    });
+    return s;
+  }
+
+  function normalize(raw){
+    const s = emptyState();
+    if (!raw || typeof raw !== "object") return s;
+
+    /* v3 起字段值即 HTML；更早的版本按纯文本转义 */
+    const isV3 = (Number(raw.__v) || 0) >= DATA_VERSION;
+    const h = function(v){ return isV3 ? str(v) : esc(str(v)); };
+
+    ["motto","dayWhat","sunrise","sunset","wake","sleep","annualTitle",
+     "annualWorkLabel","annualLifeLabel","monthlyTitle","weeklyTitle",
+     "B","C","E","F","G"].forEach(function(k){ s[k] = h(raw[k]) || s[k]; });
+
+    if (Array.isArray(raw.morning))
+      MORNING_QUESTIONS.forEach(function(_,i){ s.morning[i] = h(raw.morning[i]); });
+    if (Array.isArray(raw.morningDone))
+      MORNING_QUESTIONS.forEach(function(_,i){ s.morningDone[i] = !!raw.morningDone[i]; });
+
+    ["work","life"].forEach(function(g){
+      if (Array.isArray(raw[g]))
+        s[g] = raw[g].map(function(r){ return { title:h(r&&r.title), content:h(r&&r.content) }; });
+    });
+
+    const mt = sanitizeGrid(raw.tables && raw.tables.monthly, h);
+    const wt = sanitizeGrid(raw.tables && raw.tables.weekly, h);
+    if (mt) s.tables.monthly = mt;
+    else if (Array.isArray(raw.monthly)) s.tables.monthly = monthlyGridFromGroups(raw.monthly);
+
+    if (wt) s.tables.weekly = wt;
+    else if (Array.isArray(raw.weeklyPriority) || Array.isArray(raw.weeklyOther)){
+      s.tables.weekly = weeklyGridFrom(raw.weeklyPriority, raw.weeklyOtherTitle, raw.weeklyOther);
+    }
+
+    if (Array.isArray(raw.D))
+      s.D = raw.D.map(function(r){ return { title:h(r&&r.title), p:h(r&&r.p), m:h(r&&r.m), s:h(r&&r.s) }; });
+    if (raw.H && typeof raw.H === "object")
+      ["steps","exercise","diet"].forEach(function(k){ s.H[k] = h(raw.H[k]); });
+    if (Array.isArray(raw.habits))
+      s.habits = HABITS.map(function(_,i){
+        const x = raw.habits[i] || {};
+        return { checked: !!x.checked, note: h(x.note) };
+      });
+
+    /* 旧版整段颜色 → 包一层带颜色的 span */
+    if (raw.colors && typeof raw.colors === "object"){
+      Object.keys(raw.colors).forEach(function(path){
+        const c = raw.colors[path];
+        if (!rgbToHex(c)) return;
+        const parts = path.split(".");
+        let o = s;
+        for (let i=0;i<parts.length-1;i++){
+          o = o[parts[i]];
+          if (!o) return;
+        }
+        const leaf = parts[parts.length-1];
+        if (typeof o[leaf] !== "string") return;
+        const html = o[leaf];
+        if (!html) return;
+        o[leaf] = '<span style="color:' + rgbToHex(c) + '">' + html + '</span>';
+      });
+    }
+
+    s.__blank = false;
+    return s;
+  }
+
+  /* 只比较用户真正写下的文字，模板自带文字（表头、空表格等）不算内容 */
+  function sameValue(a, b){
+    if (a === b) return true;
+    if (a == null || b == null) return a == null && b == null;
+    if (typeof a !== typeof b) return false;
+    if (typeof a !== "object") return typeof a === "string" ? a.trim() === b.trim() : a === b;
+    if (Array.isArray(a) !== Array.isArray(b)) return false;
+    if (Array.isArray(a)){
+      if (a.length !== b.length) return false;
+      for (let i=0;i<a.length;i++) if (!sameValue(a[i], b[i])) return false;
+      return true;
+    }
+    const keys = Object.keys(b);
+    for (let i=0;i<keys.length;i++){
+      if (!sameValue(a[keys[i]], b[keys[i]])) return false;
+    }
+    return true;
+  }
+
+  /* 两张表是否都还停在模板原样（只看文字与勾选，列宽行高不算内容） */
+  function sameGrid(a, b){
+    if (!a || !b) return a === b;
+    if (!Array.isArray(a.cols) || !Array.isArray(b.cols)) return false;
+    if (a.cols.length !== b.cols.length) return false;
+    const rowsA = a.cells || [], rowsB = b.cells || [];
+    if (rowsA.length !== rowsB.length) return false;
+    for (let r=0;r<rowsB.length;r++){
+      const lineA = rowsA[r] || [], lineB = rowsB[r] || [];
+      if (lineA.length !== lineB.length) return false;
+      for (let c=0;c<lineB.length;c++){
+        const ca = lineA[c], cb = lineB[c];
+        if (!ca || !cb) { if (!!ca !== !!cb) return false; continue; }
+        if ((ca.t || "") !== (cb.t || "")) return false;
+        if (!!ca.checked !== !!cb.checked) return false;
+        if (htmlToText(ca.v || "").trim() !== htmlToText(cb.v || "").trim()) return false;
+      }
+    }
+    return true;
+  }
+
+  /* 这一篇是否等于空白模板：等于就说明还没写过东西 */
+  function isBlankRecord(s){
+    if (!s) return true;
+    const b = emptyState();
+    const skip = ["__v","__blank","dayWhat"];
+    const keys = Object.keys(b);
+    for (let i=0;i<keys.length;i++){
+      const k = keys[i];
+      if (skip.indexOf(k) >= 0) continue;
+      if (k === "tables"){
+        if (!sameGrid(s.tables && s.tables.monthly, b.tables.monthly)) return false;
+        if (!sameGrid(s.tables && s.tables.weekly, b.tables.weekly)) return false;
+        continue;
+      }
+      if (k === "morningDone" || k === "habits"){
+        // 打卡勾选与习惯备注不单独算成"写过内容"
+        const srcA = s[k] || [], srcB = b[k] || [];
+        for (let j=0;j<srcB.length;j++){
+          const a = srcA[j] || {}, bb = srcB[j] || {};
+          if (htmlToText(a.note || "").trim() !== htmlToText(bb.note || "").trim()) return false;
+        }
+        continue;
+      }
+      if (!sameValue(s[k], b[k])) return false;
+    }
+    return true;
+  }
+
+  /* ============================================================
+     存取
+     ============================================================ */
+  function findPrevRecord(date){
+    for (let i=1;i<=COPY_LOOKBACK_DAYS;i++){
+      const d = shiftDate(date, -i);
+      try{
+        const raw = localStorage.getItem(LS_PREFIX + d);
+        if (!raw) continue;
+        const s = normalize(JSON.parse(raw));
+        if (isBlankRecord(s)) continue;   // 只认真正写过内容的那一天，空白记录直接跳过
+        return { date:d, state:s };
+      }catch(e){}
+    }
+    return null;
+  }
+
+  function inheritState(src, date){
+    const s = JSON.parse(JSON.stringify(src));
+    s.__v = DATA_VERSION;
+    s.dayWhat = cnDate(date);
+    s.morningDone = MORNING_QUESTIONS.map(function(){ return false; });
+    s.habits = HABITS.map(function(_, i){
+      const h0 = (s.habits && s.habits[i]) || {};
+      return { checked:false, note: h0.note || "" };
+    });
+    s.__blank = false;
+    return s;
+  }
+
+  function load(date){
+    try{
+      const raw = localStorage.getItem(LS_PREFIX + date);
+      if (raw) return normalize(JSON.parse(raw));
+    }catch(e){}
+    const s = emptyState();
+    s.dayWhat = cnDate(date);
+    return s;
+  }
+  function save(){
+    try{ localStorage.setItem(LS_PREFIX + currentDate, JSON.stringify(state)); }
+    catch(e){ setStatus("保存失败",""); }
+  }
+  function setStatus(text, cls){ if(!statusEl) return; statusEl.textContent = text; statusEl.className = "status " + (cls||""); }
+  function scheduleSave(){
+    setStatus("保存中…","saving");
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      save();
+      snapshotNow();
+      const t = new Date().toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit"});
+      setStatus("已保存 " + t, "saved");
+    }, 350);
+  }
+  function setPath(path, val){
+    const p = path.split(".");
+    let o = state;
+    for (let i=0;i<p.length-1;i++){
+      o = o[p[i]];
+      if (!o) return;
+    }
+    o[p[p.length-1]] = val;
+  }
+
+  /* ============================================================
+     渲染片段
+     ============================================================ */
+  function ed(path, html, ph, opts){
+    opts = opts || {};
+    return '<div class="ed' + (opts.cls ? " " + opts.cls : "") + '" contenteditable="true"' +
+      ' data-path="' + path + '"' +
+      ' data-ph="' + esc(ph || "") + '"' +
+      (opts.single ? ' data-single="1"' : "") +
+      '>' + (html || "") + '</div>';
+  }
+
+  function qRows(){
+    return MORNING_QUESTIONS.map(function(q,i){
+      return '<div class="qrow">' +
+        '<input type="checkbox" class="cb" data-check="morningDone.' + i + '" ' + (state.morningDone[i] ? "checked" : "") + '>' +
+        '<span class="qtext">' + esc(q) + '</span>' +
+        ed("morning." + i, state.morning[i], "写下你的回答…") +
+      '</div>';
+    }).join("");
+  }
+
+  function goalRows(group){
+    const rows = state[group].map(function(r,i){
+      return '<div class="goal">' +
+        '<span class="bul">•</span>' +
+        ed(group + "." + i + ".title", r.title, "方面", { cls:"g-title", single:true }) +
+        '<span class="g-sep">：</span>' +
+        ed(group + "." + i + ".content", r.content, "关键内容…", { cls:"g-content" }) +
+        '<button class="cellbtn" data-remove="' + group + '.' + i + '" title="删除">✕</button>' +
+      '</div>';
+    }).join("");
+    return rows +
+      '<div class="toolrow"><button class="addbtn" data-add="' + group + '">＋ 添加一项</button></div>';
+  }
+
+  function tableHtml(key){
+    const g = state.tables[key];
+    while (g.rows.length < g.cells.length) g.rows.push(null);
+
+    let body = "";
+    g.cells.forEach(function(row, r){
+      const hs = (typeof g.rows[r] === "number" && g.rows[r] > 0) ? ' style="height:' + g.rows[r] + 'px"' : "";
+      body += "<tr" + hs + ">";
+      row.forEach(function(cell, c){
+        if (!cell) return;
+        const rs = cell.rs || 1, cs = cell.cs || 1;
+        body += '<td class="t-' + cell.t + '" data-r="' + r + '" data-c="' + c + '"' +
+                (rs > 1 ? ' rowspan="' + rs + '"' : "") +
+                (cs > 1 ? ' colspan="' + cs + '"' : "") + '>' +
+                ed("tables." + key + ".cells." + r + "." + c + ".v", cell.v, "…") + "</td>";
+      });
+      body += "</tr>";
+    });
+
+    const colgroup = "<colgroup>" + g.cols.map(function(w){ return '<col style="width:' + w + '%">'; }).join("") + "</colgroup>";
+
+    return '<div class="tblwrap" data-table="' + key + '">' +
+      '<div class="tbl-bar">' +
+        '<span class="tbl-hint" hidden>拖动选择单元格，拖边框调整大小</span>' +
+        '<button type="button" class="tbl-toggle" data-tbl-toggle="' + key + '">表格编辑</button>' +
+      '</div>' +
+      '<table class="doc">' + colgroup + "<tbody>" + body + "</tbody></table>" +
+      '<div class="tbl-overlay"></div>' +
+      '<div class="tbl-tools" hidden>' +
+        '<button type="button" data-act="merge">合并</button>' +
+        '<button type="button" data-act="split">拆分</button>' +
+        '<button type="button" data-act="clear">清除内容</button>' +
+        '<button type="button" data-act="row-insert">插入行</button>' +
+        '<button type="button" data-act="row-delete">删除行</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function itemsBlock(){
+    const cards = state.D.map(function(r,i){
+      return '<div class="item">' +
+        '<div class="item-head">' +
+          '<span class="no">事项' + (i+1) + '：</span>' +
+          ed("D." + i + ".title", r.title, "主题", { single:true }) +
+          '<button class="cellbtn inline" data-remove="D.' + i + '" title="删除该事项">✕</button>' +
+        '</div>' +
+        '<div class="item-body">' +
+          '<div class="fl"><span class="sig">+</span>' + ed("D." + i + ".p", r.p, "做得好的 / 有收获的…") + '</div>' +
+          '<div class="fl"><span class="sig">-</span>' + ed("D." + i + ".m", r.m, "待改进的…") + '</div>' +
+          '<div class="fl"><span class="sig">★</span>' + ed("D." + i + ".s", r.s, "关键收获 / 下一步…") + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join("");
+    return '<div class="items">' + cards + '</div>' +
+      '<div class="toolrow" style="margin-top:8px"><button class="addbtn" data-add="D">＋ 添加一个事项</button></div>';
+  }
+
+  function habitsBlock(){
+    return '<div class="habits">' + HABITS.map(function(name,i){
+      const h0 = state.habits[i] || { checked:false, note:"" };
+      return '<div class="habit">' +
+        '<input type="checkbox" class="cb" data-check="habits.' + i + '.checked" ' + (h0.checked ? "checked" : "") + '>' +
+        '<span class="hname">' + esc(name) + '</span>' +
+        ed("habits." + i + ".note", h0.note, "备注…", { cls:"note", single:true }) +
+      '</div>';
+    }).join("") + '</div>';
+  }
+
+  /* ============================================================
+     整页渲染
+     ============================================================ */
+  function render(){
+    appEl.innerHTML =
+      '<div class="motto">' + ed("motto", state.motto, "写下今天的座右铭…") + '</div>' +
+
+      '<div class="day">' +
+        '<div class="lab-red">今天是什么日子：' +
+          ed("dayWhat", state.dayWhat, cnDate(currentDate), { cls:"daywhat", single:true }) +
+        '</div>' +
+        '<div class="drows">' +
+          '<label class="drow"><span>日出：</span>' + ed("sunrise", state.sunrise, "6:12", { single:true }) + '</label>' +
+          '<label class="drow"><span>日落：</span>' + ed("sunset", state.sunset, "19:45", { single:true }) + '</label>' +
+          '<label class="drow"><span>起床：</span>' + ed("wake", state.wake, "6:30", { single:true }) + '</label>' +
+          '<label class="drow"><span>就寝：</span>' + ed("sleep", state.sleep, "23:30", { single:true }) + '</label>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="morning">' +
+        '<div class="lab-red">清晨自问：</div>' +
+        '<div class="qlist">' + qRows() + '</div>' +
+      '</div>' +
+
+      '<section class="sec">' +
+        '<div class="banner">A、叫我起床的不是闹钟是梦想（年目标·月目标·周目标）</div>' +
+        '<div class="sec-body">' +
+          '<div class="idx-black" style="margin-top:2px">' +
+            ed("annualTitle", state.annualTitle, "2026年度关键目标记录：", { single:true }) +
+          '</div>' +
+          '<div class="idx-sub">工作</div>' +
+          '<div class="goals">' + goalRows("work") + '</div>' +
+          '<div class="idx-sub">生活</div>' +
+          '<div class="goals">' + goalRows("life") + '</div>' +
+          '<div class="idx-red">' + ed("monthlyTitle", state.monthlyTitle, "2025年1月份关键目标：", { single:true }) + '</div>' +
+          tableHtml("monthly") +
+          '<div class="toolrow">' +
+            '<button class="addbtn" data-add="monthly.row">＋ 添加一行</button>' +
+            '<button class="addbtn" data-add="monthly.group">＋ 添加一组类别</button>' +
+          '</div>' +
+          '<div class="idx-red">' + ed("weeklyTitle", state.weeklyTitle, "1月份第4周", { single:true }) + '</div>' +
+          tableHtml("weekly") +
+          '<div class="toolrow">' +
+            '<button class="addbtn" data-add="weekly.pri">＋ 添加优先事项</button>' +
+            '<button class="addbtn" data-add="weekly.other">＋ 添加其他目标</button>' +
+          '</div>' +
+        '</div>' +
+      '</section>' +
+
+      '<section class="sec">' +
+        '<div class="banner">B、今日高能要事记录</div>' +
+        '<div class="sec-body">' + ed("B", state.B, "今天要打的几场硬仗…", { cls:"block" }) + '</div>' +
+      '</section>' +
+
+      '<section class="sec">' +
+        '<div class="banner">C、今日高能要事完成情况分析</div>' +
+        '<div class="sec-body">' + ed("C", state.C, "完成 / 未完成，以及原因…", { cls:"block" }) + '</div>' +
+      '</section>' +
+
+      '<section class="sec">' +
+        '<div class="banner">D、成功&amp;反思日志-记录三五件有收获或希望提高的事项</div>' +
+        '<div class="sec-body">' + itemsBlock() + '</div>' +
+      '</section>' +
+
+      '<section class="sec">' +
+        '<div class="banner">E、财务检视</div>' +
+        '<div class="sec-body">' + ed("E", state.E, "", { cls:"block line" }) + '</div>' +
+      '</section>' +
+      '<section class="sec">' +
+        '<div class="banner">F、人际的投入</div>' +
+        '<div class="sec-body">' + ed("F", state.F, "", { cls:"block line" }) + '</div>' +
+      '</section>' +
+      '<section class="sec">' +
+        '<div class="banner">G、开卷有益（学习/读书/听书）</div>' +
+        '<div class="sec-body">' + ed("G", state.G, "", { cls:"block line" }) + '</div>' +
+      '</section>' +
+
+      '<section class="sec">' +
+        '<div class="banner">H、健康与饮食</div>' +
+        '<div class="sec-body">' +
+          '<label class="hline"><span>今日步数：</span>' + ed("H.steps", state.H.steps, "", { single:true }) + '</label>' +
+          '<label class="hline"><span>今日锻炼：</span>' + ed("H.exercise", state.H.exercise, "", { single:true }) + '</label>' +
+          '<label class="hline"><span>今日饮食：</span>' + ed("H.diet", state.H.diet, "", { single:true }) + '</label>' +
+        '</div>' +
+      '</section>' +
+
+      '<section class="sec">' +
+        '<div class="banner">I、好习惯检视</div>' +
+        '<div class="sec-body">' + habitsBlock() + '</div>' +
+      '</section>';
+
+    bind();
+    if (selectMode){
+      applySelectMode();
+    }else{
+      paintSel();
+      applyEditMode();
+    }
+    hideColorBar();
+  }
+
+  /* ============================================================
+     表格编辑模式
+     ============================================================ */
+  function applyEditMode(){
+    appEl.querySelectorAll(".tblwrap").forEach(function(wrap){
+      const key = wrap.dataset.table;
+      const on = !!editingTables[key];
+      wrap.classList.toggle("editing", on);
+      const btn = wrap.querySelector(".tbl-toggle");
+      btn.classList.toggle("on", on);
+      btn.textContent = on ? "完成编辑" : "表格编辑";
+      const hint = wrap.querySelector(".tbl-hint");
+      if (hint) hint.hidden = !on;
+      if (on){
+        wrap.querySelectorAll(".ed").forEach(function(el){ el.setAttribute("contenteditable","false"); });
+        buildHandles(wrap, key);
+      }else{
+        wrap.querySelector(".tbl-overlay").innerHTML = "";
+      }
+    });
+    updateToolbar();
+  }
+
+  /* 选择模式：关掉所有编辑能力，整页变成可框选的文本 */
+  function applySelectMode(){
+    appEl.classList.add("select-mode");
+    appEl.querySelectorAll(".addbtn,.cellbtn,.tbl-bar,.tbl-tools,.tbl-overlay,.copynote").forEach(function(el){
+      el.style.display = "none";
+    });
+    appEl.querySelectorAll(".ed").forEach(function(el){ el.setAttribute("contenteditable","false"); });
+  }
+
+  function buildHandles(wrap, key){
+    const table = wrap.querySelector("table.doc");
+    const ov = wrap.querySelector(".tbl-overlay");
+    if (!table || !ov) return;
+    ov.innerHTML = "";
+
+    const wr = wrap.getBoundingClientRect();
+    const tr = table.getBoundingClientRect();
+    ov.style.left = (tr.left - wr.left) + "px";
+    ov.style.top = (tr.top - wr.top) + "px";
+    ov.style.width = tr.width + "px";
+    ov.style.height = tr.height + "px";
+
+    const g = state.tables[key];
+
+    let acc = 0;
+    g.cols.forEach(function(w, i){
+      acc += w;
+      if (i >= g.cols.length - 1) return;
+      const h = document.createElement("div");
+      h.className = "chandle";
+      h.dataset.col = String(i);
+      h.style.left = ((acc / 100) * tr.width) + "px";
+      ov.appendChild(h);
+      wireColHandle(h, i, key, wrap, table);
+    });
+
+    const trs = Array.prototype.slice.call(table.querySelectorAll("tr"));
+    trs.forEach(function(rowEl, i){
+      if (i >= trs.length - 1) return;
+      const rr = rowEl.getBoundingClientRect();
+      const h = document.createElement("div");
+      h.className = "rhandle";
+      h.dataset.row = String(i);
+      h.style.top = (rr.bottom - tr.top) + "px";
+      ov.appendChild(h);
+      wireRowHandle(h, i, rowEl, key, wrap);
+    });
+  }
+
+  function wireColHandle(h, i, key, wrap, table){
+    h.addEventListener("pointerdown", function(e){
+      e.preventDefault(); e.stopPropagation();
+      const g = state.tables[key];
+      const j = (i + 1 < g.cols.length) ? i + 1 : i - 1;
+      if (j < 0) return;
+      const tableW = table.getBoundingClientRect().width || 1;
+      const startX = e.clientX;
+      const a0 = g.cols[i], b0 = g.cols[j];
+      const MIN = 5;
+      const colEls = table.querySelectorAll("col");
+      const onMove = function(ev){
+        const d = ((ev.clientX - startX) / tableW) * 100;
+        let a = a0 + d, b = b0 - d;
+        if (a < MIN){ b -= (MIN - a); a = MIN; }
+        if (b < MIN){ a -= (MIN - b); b = MIN; }
+        g.cols[i] = a; g.cols[j] = b;
+        if (colEls[i]) colEls[i].style.width = a + "%";
+        if (colEls[j]) colEls[j].style.width = b + "%";
+        buildHandles(wrap, key);
+      };
+      const onUp = function(){
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+        window.removeEventListener("pointercancel", onUp);
+        scheduleSave();
+        buildHandles(wrap, key);
+        positionToolbar();
+      };
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+      window.addEventListener("pointercancel", onUp);
+    });
+  }
+
+  function wireRowHandle(h, i, rowEl, key, wrap){
+    h.addEventListener("pointerdown", function(e){
+      e.preventDefault(); e.stopPropagation();
+      const g = state.tables[key];
+      const startY = e.clientY;
+      const h0 = rowEl.getBoundingClientRect().height;
+      const onMove = function(ev){
+        const val = Math.round(Math.max(24, Math.min(400, h0 + (ev.clientY - startY))));
+        rowEl.style.height = val + "px";
+        g.rows[i] = val;
+        buildHandles(wrap, key);
+      };
+      const onUp = function(){
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+        window.removeEventListener("pointercancel", onUp);
+        scheduleSave();
+        buildHandles(wrap, key);
+        positionToolbar();
+      };
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+      window.addEventListener("pointercancel", onUp);
+    });
+    h.addEventListener("dblclick", function(e){
+      e.preventDefault(); e.stopPropagation();
+      state.tables[key].rows[i] = null;
+      scheduleSave();
+      render();
+    });
+  }
+
+  function paintSel(){
+    appEl.querySelectorAll("td.sel").forEach(function(td){ td.classList.remove("sel"); });
+    if (!sel) return;
+    const wrap = appEl.querySelector('.tblwrap[data-table="' + sel.key + '"]');
+    if (!wrap) return;
+    wrap.querySelectorAll("td").forEach(function(td){
+      const r = Number(td.dataset.r), c = Number(td.dataset.c);
+      if (r >= sel.r1 && r <= sel.r2 && c >= sel.c1 && c <= sel.c2) td.classList.add("sel");
+    });
+  }
+
+  function updateToolbar(){
+    appEl.querySelectorAll(".tblwrap").forEach(function(wrap){
+      const key = wrap.dataset.table;
+      const tools = wrap.querySelector(".tbl-tools");
+      if (!tools) return;
+      const show = editingTables[key] && sel && sel.key === key;
+      tools.hidden = !show;
+      if (!show) return;
+      const g = state.tables[key];
+      const list = anchorsIn(g, sel);
+      const canSplit = list.some(function(x){ return (x.cell.rs||1) > 1 || (x.cell.cs||1) > 1; });
+      tools.querySelector('[data-act="merge"]').disabled = list.length < 2;
+      tools.querySelector('[data-act="split"]').disabled = !canSplit;
+      tools.querySelector('[data-act="row-delete"]').disabled = g.cells.length <= 1;
+    });
+    positionToolbar();
+  }
+
+  function positionToolbar(){
+    if (!sel) return;
+    const wrap = appEl.querySelector('.tblwrap[data-table="' + sel.key + '"]');
+    if (!wrap) return;
+    const tools = wrap.querySelector(".tbl-tools");
+    if (!tools || tools.hidden) return;
+    const tds = wrap.querySelectorAll("td.sel");
+    if (!tds.length) return;
+    const wr = wrap.getBoundingClientRect();
+    let left = Infinity, top = Infinity, bottom = -Infinity;
+    tds.forEach(function(td){
+      const r = td.getBoundingClientRect();
+      if (r.left < left) left = r.left;
+      if (r.top < top) top = r.top;
+      if (r.bottom > bottom) bottom = r.bottom;
+    });
+    const th = tools.offsetHeight || 32;
+    let y = top - wr.top - th - 6;
+    if (y < 0) y = bottom - wr.top + 6;
+    let x = left - wr.left;
+    x = Math.max(0, Math.min(x, Math.max(0, wr.width - tools.offsetWidth)));
+    tools.style.left = x + "px";
+    tools.style.top = y + "px";
+  }
+
+  /* ---------- 网格结构操作 ---------- */
+  function commit(fn){
+    fn();
+    state.tables.monthly.cols = normalizeCols(state.tables.monthly.cols);
+    state.tables.weekly.cols = normalizeCols(state.tables.weekly.cols);
+    scheduleSave();
+    render();
+  }
+
+  function doMerge(){
+    if (!sel) return;
+    const key = sel.key, rect = sel;
+    commit(function(){
+      const g = state.tables[key];
+      const list = anchorsIn(g, rect);
+      if (list.length < 2) return;
+      const parts = list.map(function(x){ return x.cell.v; })
+        .filter(function(v){ return htmlToText(v).trim(); });
+      const topCell = g.cells[rect.r1][rect.c1] || list[0].cell;
+      for (let r=rect.r1;r<=rect.r2;r++)
+        for (let c=rect.c1;c<=rect.c2;c++) g.cells[r][c] = null;
+      g.cells[rect.r1][rect.c1] = makeCell(topCell.t, cleanHtml(parts.join("<br>")), {
+        rs: rect.r2 - rect.r1 + 1,
+        cs: rect.c2 - rect.c1 + 1
+      });
+      g.cells = canonical(g.cells, g.cols.length);
+      g.rows = g.cells.map(function(_, i){ return g.rows[i] || null; });
+      sel = null;
+    });
+    toast("已合并");
+  }
+
+  function doSplit(){
+    if (!sel) return;
+    const key = sel.key, rect = sel;
+    commit(function(){
+      const g = state.tables[key];
+      const list = anchorsIn(g, rect).filter(function(x){ return (x.cell.rs||1) > 1 || (x.cell.cs||1) > 1; });
+      if (!list.length) return;
+      list.forEach(function(x){
+        const rs = x.cell.rs || 1, cs = x.cell.cs || 1;
+        const t = x.cell.t;
+        x.cell.rs = 1; x.cell.cs = 1;
+        for (let i=x.r;i<x.r+rs;i++){
+          for (let j=x.c;j<x.c+cs;j++){
+            if (i === x.r && j === x.c) continue;
+            g.cells[i][j] = makeCell(t, "");
+          }
+        }
+      });
+      g.cells = canonical(g.cells, g.cols.length);
+      sel = null;
+    });
+    toast("已拆分");
+  }
+
+  function doClear(){
+    if (!sel) return;
+    const key = sel.key, rect = sel;
+    commit(function(){
+      const g = state.tables[key];
+      anchorsIn(g, rect).forEach(function(x){ x.cell.v = ""; });
+    });
+    toast("已清除内容");
+  }
+
+  /* 插入行：插在选区下方（选区的合并格会跟着延长） */
+  function doInsertRow(){
+    if (!sel) return;
+    const key = sel.key, rect = sel;
+    const at = rect.r2 + 1;
+    commit(function(){
+      const g = state.tables[key];
+      const C = g.cols.length;
+      for (let r=0;r<Math.min(at, g.cells.length);r++){
+        for (let c=0;c<C;c++){
+          const cell = g.cells[r][c];
+          if (!cell) continue;
+          const rs = cell.rs || 1;
+          if (r + rs > at) cell.rs = rs + 1;
+        }
+      }
+      g.cells.splice(at, 0, new Array(C).fill(null));
+      g.rows.splice(at, 0, null);
+      const cov = coverage(g.cells, C);
+      for (let c=0;c<C;c++){
+        if (!cov[at][c]) g.cells[at][c] = makeCell("body", "");
+      }
+      g.cells = canonical(g.cells, C);
+      g.rows = g.cells.map(function(_, i){ return g.rows[i] || null; });
+      sel = null;
+    });
+    toast("已插入一行");
+  }
+
+  /* 删除行：删掉选区覆盖的行（被切到的合并格会缩短） */
+  function doDeleteRow(){
+    if (!sel) return;
+    const key = sel.key;
+    const from = sel.r1, to = sel.r2;
+    commit(function(){
+      const g = state.tables[key];
+      const C = g.cols.length;
+      const count = to - from + 1;
+      if (g.cells.length - count < 1) return;
+      for (let r=0;r<g.cells.length;r++){
+        for (let c=0;c<C;c++){
+          const cell = g.cells[r][c];
+          if (!cell) continue;
+          const rs = cell.rs || 1;
+          const overlap = Math.max(0, Math.min(r + rs - 1, to) - Math.max(r, from) + 1);
+          if (overlap > 0) cell.rs = Math.max(1, rs - overlap);
+        }
+      }
+      g.cells.splice(from, count);
+      g.rows.splice(from, count);
+      const cov = coverage(g.cells, C);
+      for (let r=0;r<g.cells.length;r++){
+        for (let c=0;c<C;c++){
+          if (!g.cells[r][c] && !cov[r][c]) g.cells[r][c] = makeCell("body","");
+        }
+      }
+      g.cells = canonical(g.cells, C);
+      g.rows = g.cells.map(function(_, i){ return g.rows[i] || null; });
+      sel = null;
+    });
+    toast("已删除选中行");
+  }
+
+  /* ============================================================
+     文字颜色：只给选中的片段上色
+     ============================================================ */
+  function editorOf(node){
+    let el = node;
+    while (el && el !== appEl){
+      if (el.nodeType === 1 && el.classList && el.classList.contains("ed")){
+        return el.getAttribute("contenteditable") === "true" ? el : null;
+      }
+      el = el.parentNode;
+    }
+    return null;
+  }
+
+  function initColorBar(){
+    colorBar = document.createElement("div");
+    colorBar.className = "colorbar";
+    colorBar.hidden = true;
+    const html = ['<span class="cb-label">选中文字后点色块</span>'];
+    COLOR_SWATCHES.forEach(function(s){
+      html.push('<button type="button" class="sw' + (s.c ? "" : " sw-none") + '" data-color="' + s.c +
+                '" title="' + s.t + '"' + (s.c ? ' style="background:' + s.c + '"' : "") + '></button>');
+    });
+    colorBar.innerHTML = html.join("");
+    document.body.appendChild(colorBar);
+
+    colorBar.addEventListener("mousedown", function(e){ e.preventDefault(); });
+    colorBar.addEventListener("click", function(e){
+      const b = e.target.closest("[data-color]");
+      if (!b) return;
+      e.preventDefault();
+      applyColorToSelection(b.dataset.color || "");
+    });
+
+    document.addEventListener("selectionchange", onSelectionChange);
+  }
+
+  function onSelectionChange(){
+    if (selectMode){ hideColorBar(); return; }
+    const s = window.getSelection();
+    if (!s || s.rangeCount === 0 || s.isCollapsed){ hideColorBar(); return; }
+    const a = editorOf(s.anchorNode), f = editorOf(s.focusNode);
+    if (!a || a !== f){ hideColorBar(); return; }
+    showColorBar(a, s.getRangeAt(0));
+  }
+
+  function showColorBar(el, range){
+    if (!colorBar) return;
+    const r = range.getBoundingClientRect();
+    if (!r || (!r.width && !r.height)) { hideColorBar(); return; }
+    colorBar.hidden = false;
+    const w = colorBar.offsetWidth, h = colorBar.offsetHeight;
+    let top = r.top - h - 8;
+    if (top < 8) top = Math.min(window.innerHeight - h - 8, r.bottom + 8);
+    const left = Math.min(Math.max(8, r.left), Math.max(8, window.innerWidth - w - 8));
+    colorBar.style.top = Math.max(8, top) + "px";
+    colorBar.style.left = left + "px";
+  }
+  function hideColorBar(){ if (colorBar) colorBar.hidden = true; }
+
+  function applyColorToSelection(color){
+    const s = window.getSelection();
+    if (!s || s.rangeCount === 0 || s.isCollapsed) return;
+    const el = editorOf(s.anchorNode);
+    if (!el || el !== editorOf(s.focusNode)) return;
+    try{
+      if (color){
+        document.execCommand("styleWithCSS", false, true);
+        document.execCommand("foreColor", false, color);
+      }else{
+        document.execCommand("styleWithCSS", false, true);
+        document.execCommand("removeFormat", false, null);
+      }
+    }catch(e){ return; }
+    const path = el.dataset.path;
+    if (path){
+      setPath(path, cleanHtml(el.innerHTML));
+      scheduleSave();
+    }
+    toast(color ? "已给选中文字上色" : "已去掉选中文字的颜色");
+  }
+
+  /* ============================================================
+     事件绑定
+     ============================================================ */
+  /* ---------- 上一步 / 下一步（整篇回退，防误操作） ---------- */
+  let past = [], future = [], present = "";
+
+  function snapshotNow(){
+    const now = JSON.stringify(state);
+    if (now === present) return;
+    if (present) past.push(present);
+    if (past.length > 80) past.shift();
+    present = now;
+    future = [];
+    refreshUndoButtons();
+  }
+  function resetHistory(){
+    past = []; future = [];
+    present = JSON.stringify(state);
+    refreshUndoButtons();
+  }
+  function restoreState(json){
+    try{ state = JSON.parse(json); }catch(e){ return; }
+    save();
+    render();
+    setStatus("已保存","saved");
+    refreshUndoButtons();
+  }
+  function doUndo(){
+    snapshotNow();
+    if (!past.length){ toast("没有可回退的步骤了"); return; }
+    future.push(present);
+    present = past.pop();
+    restoreState(present);
+    toast("已回到上一步");
+  }
+  function doRedo(){
+    if (!future.length){ toast("没有可恢复的步骤了"); return; }
+    past.push(present);
+    present = future.pop();
+    restoreState(present);
+    toast("已恢复下一步");
+  }
+  function refreshUndoButtons(){
+    const u = document.getElementById("undoBtn"), r = document.getElementById("redoBtn");
+    if (u) u.disabled = past.length === 0;
+    if (r) r.disabled = future.length === 0;
+  }
+
+  function bind(){
+    appEl.querySelectorAll(".ed").forEach(function(el){
+      const path = el.dataset.path;
+      const sync = function(){ setPath(path, cleanHtml(el.innerHTML)); scheduleSave(); };
+      el.addEventListener("input", sync);
+      el.addEventListener("blur", sync);
+      el.addEventListener("keydown", function(e){
+        if (e.key === "Enter" && el.dataset.single === "1") e.preventDefault();
+      });
+      el.addEventListener("paste", function(e){
+        e.preventDefault();
+        const t = (e.clipboardData || window.clipboardData).getData("text/plain") || "";
+        document.execCommand("insertText", false, t);
+      });
+      el.addEventListener("drop", function(e){ e.preventDefault(); });
+    });
+
+    appEl.querySelectorAll("[data-check]").forEach(function(el){
+      const path = el.dataset.check;
+      el.addEventListener("change", function(){ setPath(path, el.checked); scheduleSave(); });
+    });
+
+    appEl.querySelectorAll("[data-add]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        const t = btn.dataset.add;
+        snapshotNow();
+        if (t === "work" || t === "life") state[t].push({ title:"", content:"" });
+        else if (t === "D") state.D.push({ title:"", p:"", m:"", s:"" });
+        else if (t === "monthly.row"){
+          const g = state.tables.monthly;
+          g.cells.push(g.cols.map(function(){ return makeCell("body",""); }));
+          g.rows.push(null);
+        }
+        else if (t === "monthly.group"){
+          const g = state.tables.monthly;
+          const row = g.cols.map(function(){ return makeCell("body",""); });
+          row[0] = makeCell("cat","");
+          g.cells.push(row);
+          g.rows.push(null);
+        }
+        else if (t === "weekly.pri"){
+          const g = state.tables.weekly;
+          let at = g.cells.length;
+          for (let i=0;i<g.cells.length;i++){
+            if (g.cells[i].some(function(c){ return c && c.t === "sub"; })){ at = i; break; }
+          }
+          g.cells.splice(at, 0, g.cols.map(function(){ return makeCell("body",""); }));
+          g.rows.splice(at, 0, null);
+        }
+        else if (t === "weekly.other"){
+          const g = state.tables.weekly;
+          if (!g.cells.some(function(row){ return row.some(function(c){ return c && c.t === "sub"; }); })){
+            g.cells.push([ makeCell("sub","本周其他目标",{cs:2}), null ]);
+            g.rows.push(null);
+          }
+          g.cells.push([ makeCell("cat",""), makeCell("body","") ]);
+          g.rows.push(null);
+        }
+        scheduleSave();
+        render();
+      });
+    });
+
+    appEl.querySelectorAll("[data-remove]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        const p = btn.dataset.remove.split(".");
+        const arr = state[p[0]];
+        const i = Number(p[1]);
+        snapshotNow();
+        if (Array.isArray(arr) && arr.length > 1) arr.splice(i, 1);
+        scheduleSave();
+        render();
+      });
+    });
+
+    /* 继承提示条 */
+    appEl.querySelectorAll("[data-act]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        const a = btn.dataset.act;
+        if (a === "copy-dismiss"){ copyNotice = null; render(); return; }
+        if (a === "copy-blank"){
+          snapshotNow();
+          copyNotice = null;
+          state = emptyState();
+          state.dayWhat = cnDate(currentDate);
+          save(); setStatus("已保存","saved");
+          render();
+          toast("已改用空白");
+        }
+      });
+    });
+    appEl.querySelectorAll("[data-tbl-toggle]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        const key = btn.dataset.tblToggle;
+        editingTables[key] = !editingTables[key];
+        sel = null;
+        render();
+      });
+    });
+
+    appEl.querySelectorAll(".tbl-tools button").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        const a = btn.dataset.act;
+        snapshotNow();
+        if (a === "merge") doMerge();
+        else if (a === "split") doSplit();
+        else if (a === "clear") doClear();
+        else if (a === "row-insert") doInsertRow();
+        else if (a === "row-delete") doDeleteRow();
+      });
+    });
+
+    appEl.querySelectorAll(".tblwrap").forEach(function(wrap){
+      const key = wrap.dataset.table;
+      wrap.addEventListener("pointerdown", function(e){
+        if (!editingTables[key]) return;
+        if (e.target.closest(".chandle,.rhandle,.tbl-tools,.tbl-toggle")) return;
+        const td = e.target.closest("td");
+        if (!td) return;
+        e.preventDefault();
+        const g = state.tables[key];
+        dragging = { key:key, r0:Number(td.dataset.r), c0:Number(td.dataset.c) };
+        const rect = expandRect(g, dragging.r0, dragging.c0, dragging.r0, dragging.c0);
+        sel = { key:key, r1:rect.r1, c1:rect.c1, r2:rect.r2, c2:rect.c2 };
+        paintSel();
+        updateToolbar();
+
+        const onMove = function(ev){
+          if (!dragging) return;
+          const el = document.elementFromPoint(ev.clientX, ev.clientY);
+          const t2 = el && el.closest ? el.closest("td") : null;
+          if (!t2 || !wrap.contains(t2)) return;
+          const rr = Number(t2.dataset.r), cc = Number(t2.dataset.c);
+          const raw = {
+            r1: Math.min(dragging.r0, rr), c1: Math.min(dragging.c0, cc),
+            r2: Math.max(dragging.r0, rr), c2: Math.max(dragging.c0, cc)
+          };
+          const ex = expandRect(g, raw.r1, raw.c1, raw.r2, raw.c2);
+          sel = { key:key, r1:ex.r1, c1:ex.c1, r2:ex.r2, c2:ex.c2 };
+          paintSel();
+          updateToolbar();
+        };
+        const onUp = function(){
+          dragging = null;
+          window.removeEventListener("pointermove", onMove);
+          window.removeEventListener("pointerup", onUp);
+          window.removeEventListener("pointercancel", onUp);
+          updateToolbar();
+        };
+        window.addEventListener("pointermove", onMove);
+        window.addEventListener("pointerup", onUp);
+        window.addEventListener("pointercancel", onUp);
+      });
+    });
+  }
+
+  /* ============================================================
+     Markdown 导出
+     ============================================================ */
+  function gridMarkdown(key, L){
+    const g = state.tables[key];
+    if (!g || !g.cells.length) return;
+    const rows = g.cells.map(function(row){
+      return row.map(function(cell){
+        if (!cell) return "";
+        return htmlToText(cell.v);
+      }).map(cellMd);
+    });
+    const C = g.cols.length;
+    const head = rows[0] || [];
+    while (head.length < C) head.push("");
+    L.push("| " + head.join(" | ") + " |");
+    L.push("| " + head.map(function(){ return "---"; }).join(" | ") + " |");
+    rows.slice(1).forEach(function(r){
+      while (r.length < C) r.push("");
+      L.push("| " + r.join(" | ") + " |");
+    });
+  }
+
+  function toMarkdown(){
+    const L = [];
+    const t = function(v){ return htmlToText(v); };
+    L.push("# " + (t(state.dayWhat) || cnDate(currentDate)));
+    L.push("");
+    if (t(state.motto)) L.push("**" + t(state.motto) + "**");
+    L.push("");
+    L.push("**今天是什么日子：**");
+    if (t(state.sunrise)) L.push("- 日出：" + t(state.sunrise));
+    if (t(state.sunset)) L.push("- 日落：" + t(state.sunset));
+    if (t(state.wake)) L.push("- 起床：" + t(state.wake));
+    if (t(state.sleep)) L.push("- 就寝：" + t(state.sleep));
+
+    L.push("", "**清晨自问：**", "");
+    MORNING_QUESTIONS.forEach(function(q,i){
+      const a = t(state.morning[i]).trim();
+      L.push("- " + (state.morningDone[i] ? "[x] " : "[ ] ") + q + (a ? "　" + oneLine(a) : ""));
+    });
+
+    L.push("", "## A、叫我起床的不是闹钟是梦想（年目标·月目标·周目标）", "");
+    if (t(state.annualTitle)) L.push("**" + t(state.annualTitle) + "**", "");
+    L.push("**工作**", "");
+    state.work.forEach(function(r){ if (t(r.title) || t(r.content)) L.push("- " + t(r.title) + "：" + oneLine(t(r.content))); });
+    L.push("", "**生活**", "");
+    state.life.forEach(function(r){ if (t(r.title) || t(r.content)) L.push("- " + t(r.title) + "：" + oneLine(t(r.content))); });
+
+    if (t(state.monthlyTitle)) L.push("", "### " + t(state.monthlyTitle));
+    L.push("");
+    gridMarkdown("monthly", L);
+
+    if (t(state.weeklyTitle)) L.push("", "### " + t(state.weeklyTitle));
+    L.push("");
+    gridMarkdown("weekly", L);
+
+    sec(L, "B、今日高能要事记录", t(state.B));
+    sec(L, "C、今日高能要事完成情况分析", t(state.C));
+
+    L.push("", "## D、成功&反思日志-记录三五件有收获或希望提高的事项", "");
+    state.D.filter(function(r){ return t(r.title) || t(r.p) || t(r.m) || t(r.s); }).forEach(function(r,i){
+      L.push("**事项" + (i+1) + "：** " + t(r.title));
+      if (t(r.p)) L.push("+ " + oneLine(t(r.p)));
+      if (t(r.m)) L.push("- " + oneLine(t(r.m)));
+      if (t(r.s)) L.push("★ " + oneLine(t(r.s)));
+      L.push("");
+    });
+
+    sec(L, "E、财务检视", t(state.E));
+    sec(L, "F、人际的投入", t(state.F));
+    sec(L, "G、开卷有益（学习/读书/听书）", t(state.G));
+
+    L.push("", "## H、健康与饮食", "");
+    L.push("- 今日步数：" + t(state.H.steps));
+    L.push("- 今日锻炼：" + t(state.H.exercise));
+    L.push("- 今日饮食：" + t(state.H.diet));
+
+    L.push("", "## I、好习惯检视", "");
+    state.habits.forEach(function(x,i){
+      const note = t(x.note);
+      L.push("- " + (x.checked ? "[x] " : "[ ] ") + HABITS[i] + (note ? "　－ " + note : ""));
+    });
+    return L.join("\n") + "\n";
+  }
+  function sec(L, title, val){
+    L.push("", "## " + title);
+    if (val && val.trim()) L.push("", val.trim());
+  }
+
+  /* ============================================================
+     交互
+     ============================================================ */
+  function toast(msg){
+    const t = document.getElementById("toast");
+    t.textContent = msg; t.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function(){ t.classList.remove("show"); }, 1700);
+  }
+  function refreshChrome(){
+    document.getElementById("datePick").value = currentDate;
+    document.title = currentDate + " 日记";
+  }
+  function goto(date){
+    save();
+    currentDate = date;
+    state = load(date);
+    sel = null; dragging = null;
+    editingTables = { monthly:false, weekly:false };
+    refreshChrome();
+    render();
+    resetHistory();
+    setStatus(state.__blank ? "" : "已保存", state.__blank ? "" : "saved");
+  }
+  function downloadMd(){
+    const md = toMarkdown();
+    const blob = new Blob([md], {type:"text/markdown;charset=utf-8"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = currentDate + "-日记.md";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1500);
+    toast("已导出 " + a.download);
+  }
+
+  function init(){
+    statusEl = document.getElementById("status");
+    appEl = document.getElementById("app");
+    try{ document.execCommand("defaultParagraphSeparator", false, "br"); }catch(e){}
+
+    const hasAny = (function(){
+      try{
+        for (let i=0;i<localStorage.length;i++){
+          if (String(localStorage.key(i)).indexOf(LS_PREFIX) === 0) return true;
+        }
+      }catch(e){}
+      return false;
+    })();
+
+    state = load(currentDate);
+    if (!hasAny && state.__blank){ state = templateState(); save(); }
+
+    initColorBar();
+    refreshChrome();
+    render();
+    resetHistory();
+    setStatus(state.__blank ? "" : "已保存", state.__blank ? "" : "saved");
+
+    document.getElementById("datePick").addEventListener("change", function(e){ if (e.target.value) goto(e.target.value); });
+    document.getElementById("prevDay").addEventListener("click", function(){ goto(shiftDate(currentDate,-1)); });
+    document.getElementById("nextDay").addEventListener("click", function(){ goto(shiftDate(currentDate, 1)); });
+    document.getElementById("todayBtn").addEventListener("click", function(){ goto(todayISO()); });
+    document.getElementById("copyPrev").addEventListener("click", function(){
+      const prev = findPrevRecord(currentDate);
+      if (!prev){ toast("往前 30 天内没有填写过的记录"); return; }
+      if (!isBlankRecord(state) && !confirm("用 " + cnDate(prev.date) + " 的内容覆盖当前这一篇？")) return;
+      snapshotNow();
+      state = inheritState(prev.state, currentDate);
+      save(); setStatus("已保存","saved");
+      render();
+      toast("已填入 " + cnDate(prev.date) + " 的内容");
+    });
+
+    document.getElementById("fillTpl").addEventListener("click", function(){
+      if (!confirm("用示例内容覆盖当前这一篇？当前内容会被替换。")) return;
+      snapshotNow();
+      state = templateState();
+      sel = null;
+      render(); save(); setStatus("已保存","saved");
+      toast("已载入示例内容");
+    });
+    document.getElementById("clearDay").addEventListener("click", function(){
+      if (!confirm("清空 " + currentDate + " 这一篇的全部内容？")) return;
+      snapshotNow();
+      state = emptyState();
+      state.dayWhat = cnDate(currentDate);
+      sel = null;
+      render(); save(); setStatus("已保存","saved");
+      toast("已清空本篇");
+    });
+    document.getElementById("exportMd").addEventListener("click", downloadMd);
+    document.getElementById("selectMode").addEventListener("click", function(){
+      selectMode = !selectMode;
+      editingTables = { monthly:false, weekly:false };
+      sel = null;
+      document.getElementById("selectMode").classList.toggle("on", selectMode);
+      render();
+      toast(selectMode ? "选择模式：整页文字可任意框选、Ctrl+A 全选、复制（Esc 退出）" : "已退出选择模式");
+    });
+    document.getElementById("copyMd").addEventListener("click", async function(){
+      const md = toMarkdown();
+      try{
+        await navigator.clipboard.writeText(md);
+        toast("Markdown 已复制");
+      }catch(e){
+        const ta = document.createElement("textarea");
+        ta.value = md;
+        ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.select();
+        try{ document.execCommand("copy"); toast("Markdown 已复制"); }
+        catch(e2){ toast("复制失败，请手动导出"); }
+        ta.remove();
+      }
+    });
+    document.getElementById("printBtn").addEventListener("click", function(){ window.print(); });
+    document.getElementById("undoBtn").addEventListener("click", doUndo);
+    document.getElementById("redoBtn").addEventListener("click", doRedo);
+
+    document.addEventListener("keydown", function(e){
+      if (e.key === "Escape" && selectMode){
+        selectMode = false;
+        document.getElementById("selectMode").classList.remove("on");
+        render();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && String(e.key).toLowerCase() === "z"){
+        e.preventDefault();
+        if (e.shiftKey) doRedo(); else doUndo();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && String(e.key).toLowerCase() === "y"){
+        e.preventDefault(); doRedo(); return;
+      }
+      if ((e.ctrlKey || e.metaKey) && String(e.key).toLowerCase() === "s"){
+        e.preventDefault(); save(); setStatus("已保存","saved"); toast("已保存");
+      }
+    });
+
+    window.addEventListener("beforeprint", function(){
+      appEl.querySelectorAll(".tbl-overlay").forEach(function(o){ o.innerHTML = ""; });
+    });
+    window.addEventListener("afterprint", function(){
+      appEl.querySelectorAll(".tblwrap.editing").forEach(function(w){ buildHandles(w, w.dataset.table); });
+      paintSel();
+      updateToolbar();
+    });
+    window.addEventListener("beforeunload", save);
+
+    let rzTimer = null;
+    window.addEventListener("resize", function(){
+      clearTimeout(rzTimer);
+      rzTimer = setTimeout(function(){
+        appEl.querySelectorAll(".tblwrap.editing").forEach(function(w){ buildHandles(w, w.dataset.table); });
+        positionToolbar();
+      }, 120);
+    });
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();
+</script>
+</body>
+</html>
