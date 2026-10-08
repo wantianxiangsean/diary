@@ -1,0 +1,15 @@
+# Netlify 部署配置
+# 这个日记页是纯静态单文件（index.html 内含全部 CSS/JS），不需要构建步骤。
+
+[build]
+  publish = "."
+
+# 基础安全 / 隐私响应头
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "no-referrer"
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "public, max-age=0, must-revalidate"
