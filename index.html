@@ -60,6 +60,30 @@
   .status.saving{color:#c98a2e}
   .status.saved{color:var(--blue)}
 
+  /* ================= 云端备份面板（不打印） ================= */
+  .ghpanel{
+    display:none;z-index:55;background:#fbfdff;border-bottom:1px solid #cddff0;
+    padding:10px 14px;font-size:15.5px;
+  }
+  .ghpanel.open{display:block}
+  .ghrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:7px}
+  .ghrow:last-child{margin-bottom:0}
+  .ghrow > label{color:#5a6b7b;white-space:nowrap}
+  .ghpanel input[type="text"],.ghpanel input[type="password"]{
+    font:inherit;font-size:15px;padding:4px 8px;border:1px solid #cfcfcf;border-radius:6px;
+    background:#fff;color:#222;min-width:210px;
+  }
+  .ghpanel button{
+    font:inherit;font-size:15px;color:#222;background:#fafafa;border:1px solid #cfcfcf;
+    border-radius:6px;padding:4px 10px;cursor:pointer;white-space:nowrap;
+  }
+  .ghpanel button:hover{background:#eef5fb;border-color:#9dc4e2}
+  .ghchk{display:inline-flex;align-items:center;gap:5px;color:#5a6b7b;cursor:pointer}
+  .ghstatus{color:#8b8b8b}
+  .ghstatus.ok{color:var(--blue)}
+  .ghstatus.bad{color:#c0392b}
+  .ghnote{margin:6px 0 0;font-size:13.5px;color:#8b8b8b;line-height:1.55}
+
   /* ================= 纸张 ================= */
   .page{
     width:min(900px,100%);
@@ -297,7 +321,7 @@
     @page{margin:12mm}
     html,body{background:#fff}
     body{font-size:14px}
-    .topbar,.addbtn,.cellbtn,.toolrow,.toast,.copynote,
+    .topbar,.ghpanel,.addbtn,.cellbtn,.toolrow,.toast,.copynote,
     .tbl-bar,.tbl-overlay,.tbl-tools,.colorbar{display:none !important}
     .page{box-shadow:none;margin:0;width:auto;padding:0;max-width:none}
     .banner,.item,.sec,table.doc tr,.goal{break-inside:avoid}
@@ -321,7 +345,34 @@
   <button id="copyPrev" title="把最近一份填写过的日记复制到本篇">复制昨天</button>
   <button id="fillTpl" title="载入示例内容">示例</button>
   <button id="clearDay" title="清空这一篇">清空</button>
+  <button id="ghBtn" title="把日记备份到 GitHub 仓库">☁ 备份</button>
   <button class="primary" id="exportMd">导出 .md</button>
+</div>
+
+<div class="ghpanel" id="ghPanel">
+  <div class="ghrow">
+    <label for="ghRepo">仓库</label>
+    <input type="text" id="ghRepo" spellcheck="false" placeholder="用户名/仓库名" autocomplete="off">
+    <label for="ghBranch">分支</label>
+    <input type="text" id="ghBranch" spellcheck="false" placeholder="留空=默认分支" style="min-width:150px">
+    <label for="ghToken">Token</label>
+    <input type="password" id="ghToken" spellcheck="false" placeholder="github_pat_… 或 ghp_…" autocomplete="off">
+    <label class="ghchk"><input type="checkbox" id="ghRemember"> 记住（存本机）</label>
+  </div>
+  <div class="ghrow">
+    <label class="ghchk"><input type="checkbox" id="ghAuto"> 自动备份（停止编辑约 10 秒后）</label>
+    <label class="ghchk"><input type="checkbox" id="ghOverwrite"> 恢复时覆盖本机同名日期</label>
+    <span class="ghstatus" id="ghStatus">未配置</span>
+  </div>
+  <div class="ghrow">
+    <button id="ghSaveCfg">保存设置</button>
+    <button id="ghNow">立即备份本篇</button>
+    <button id="ghAll">备份全部日期</button>
+    <button id="ghRestore">从云端恢复</button>
+    <button id="ghForget">清除本机 token</button>
+    <button id="ghClose">关闭</button>
+  </div>
+  <p class="ghnote">日记会写进上面这个仓库的 <code>diary/日期.json</code>，每天一个文件。<strong>请用私有仓库</strong>——用公开仓库等于把日记公开。token 只保存在本机浏览器，建议只给它该仓库的 Contents 读写权限。</p>
 </div>
 
 <div class="page">
@@ -953,9 +1004,291 @@
     saveTimer = setTimeout(function(){
       save();
       snapshotNow();
+      ghMaybeAuto();
       const t = new Date().toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit"});
       setStatus("已保存 " + t, "saved");
     }, 350);
+  }
+
+  /* ============================================================
+     GitHub 云端备份（日记内容写进你自己的仓库）
+     ============================================================ */
+  const GH_KEYS = {
+    repo:"diary.gh.repo", branch:"diary.gh.branch", token:"diary.gh.token",
+    auto:"diary.gh.auto", marks:"diary.gh.marks"
+  };
+  const GH_DEFAULT_REPO = "wantianxiangsean/diary-backup";
+  const GH_FOLDER = "diary";
+  const GH_IDLE_MS = 10000;
+  let ghAutoTimer = null;
+  let ghBusy = false;
+
+  function ghTime(){
+    return new Date().toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit"});
+  }
+  function ghEl(id){ return document.getElementById(id); }
+  function ghStatus(text, cls){
+    const el = ghEl("ghStatus");
+    if (el){ el.textContent = text; el.className = "ghstatus" + (cls ? " " + cls : ""); }
+  }
+  function ghCfg(){
+    const val = function(id){ const e = ghEl(id); return e ? String(e.value).trim() : ""; };
+    const tok = val("ghToken");
+    const autoEl = ghEl("ghAuto"), remEl = ghEl("ghRemember"), ovEl = ghEl("ghOverwrite");
+    return {
+      repo: val("ghRepo"), branch: val("ghBranch"), token: tok,
+      auto: !!(autoEl && autoEl.checked),
+      remember: !!(remEl && remEl.checked),
+      overwrite: !!(ovEl && ovEl.checked)
+    };
+  }
+  function ghLoadMarks(){
+    try{ return JSON.parse(localStorage.getItem(GH_KEYS.marks) || "{}") || {}; }catch(e){ return {}; }
+  }
+  function ghSaveMarks(m){
+    try{ localStorage.setItem(GH_KEYS.marks, JSON.stringify(m)); }catch(e){}
+  }
+  function ghHash(s){
+    let h = 5381;
+    for (let i=0;i<s.length;i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    return (h >>> 0).toString(36) + ":" + s.length;
+  }
+  function ghPretty(raw){
+    try{ return JSON.stringify(JSON.parse(raw), null, 2); }catch(e){ return raw; }
+  }
+  /* btoa/atob 处理不了中文，这里手动走 UTF-8 字节 */
+  function b64encodeUtf8(str){
+    const bytes = new TextEncoder().encode(str);
+    let bin = "";
+    for (let i=0;i<bytes.length;i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin);
+  }
+  function b64decodeUtf8(b64){
+    const bin = atob(String(b64 || "").replace(/\s/g, ""));
+    const bytes = new Uint8Array(bin.length);
+    for (let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+  function ghFriendly(err){
+    const msg = (err && err.message) || String(err);
+    if (err && err.status === 401) return "token 无效或已过期";
+    if (err && err.status === 403) return "权限不够或触发限流（token 需要该仓库的 Contents 读写）";
+    if (err && err.status === 404) return "找不到仓库或路径（检查仓库名，以及 token 是否有这个仓库的权限）";
+    if (err && err.status === 409) return "仓库还是空的，先在网页上建一份 README 再试";
+    if (err && err.status === 422) return "提交被拒绝（可能同名文件正在被改）";
+    return msg;
+  }
+  async function ghCall(method, path, body){
+    const cfg = ghCfg();
+    if (!cfg.token) throw new Error("还没填 token");
+    if (!/^[^\/\s]+\/[^\/\s]+$/.test(cfg.repo)) throw new Error("仓库要写成 用户名/仓库名");
+    const res = await fetch("https://api.github.com" + path, {
+      method: method,
+      headers: {
+        "Authorization": "Bearer " + cfg.token,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Content-Type": "application/json"
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    if (!res.ok){
+      let detail = "";
+      try{ const j = await res.json(); detail = j && j.message ? j.message : ""; }catch(e){}
+      const err = new Error(detail ? detail : "HTTP " + res.status);
+      err.status = res.status;
+      throw err;
+    }
+    const txt = await res.text();
+    try{ return txt ? JSON.parse(txt) : null; }catch(e){ return txt; }
+  }
+  function ghRef(cfg){
+    return cfg.branch ? "?ref=" + encodeURIComponent(cfg.branch) : "";
+  }
+  async function ghPutFile(cfg, path, text, message){
+    let sha = null;
+    try{
+      const cur = await ghCall("GET", "/repos/" + cfg.repo + "/contents/" + path + ghRef(cfg));
+      sha = cur && cur.sha ? cur.sha : null;
+    }catch(err){
+      if (err.status !== 404) throw err;
+    }
+    const body = { message: message, content: b64encodeUtf8(text) };
+    if (cfg.branch) body.branch = cfg.branch;
+    if (sha) body.sha = sha;
+    return ghCall("PUT", "/repos/" + cfg.repo + "/contents/" + path, body);
+  }
+  async function ghBackupDate(date, opts){
+    opts = opts || {};
+    const raw = localStorage.getItem(LS_PREFIX + date);
+    if (!raw) throw new Error(date + " 这一篇还没有内容");
+    const cfg = ghCfg();
+    const marks = ghLoadMarks();
+    if (!opts.force && marks[date] === ghHash(raw)) return "本篇没有变化，跳过";
+    await ghPutFile(cfg, GH_FOLDER + "/" + date + ".json", ghPretty(raw), "备份 " + date + " 的日记");
+    marks[date] = ghHash(raw);
+    ghSaveMarks(marks);
+    return "已备份 " + date + "（" + ghTime() + "）";
+  }
+  function ghLocalDates(){
+    const out = [];
+    for (let i=0;i<localStorage.length;i++){
+      const k = String(localStorage.key(i));
+      if (k.indexOf(LS_PREFIX) === 0) out.push(k.slice(LS_PREFIX.length));
+    }
+    return out.sort();
+  }
+  async function ghBackupAll(){
+    const dates = ghLocalDates();
+    if (!dates.length) throw new Error("本机还没有任何日记");
+    const cfg = ghCfg();
+    const marks = ghLoadMarks();
+    let ok = 0, fail = 0, firstErr = "";
+    for (let i=0;i<dates.length;i++){
+      const d = dates[i];
+      ghStatus("备份中 " + (i+1) + "/" + dates.length + "：" + d, "");
+      const raw = localStorage.getItem(LS_PREFIX + d);
+      try{
+        await ghPutFile(cfg, GH_FOLDER + "/" + d + ".json", ghPretty(raw), "备份 " + d + " 的日记");
+        marks[d] = ghHash(raw);
+        ok++;
+      }catch(err){
+        fail++;
+        if (!firstErr) firstErr = ghFriendly(err);
+      }
+    }
+    ghSaveMarks(marks);
+    if (!ok) throw new Error(firstErr || "全部失败");
+    return "已备份 " + ok + " 天" + (fail ? "，失败 " + fail + " 天（" + firstErr + "）" : "（" + ghTime() + "）");
+  }
+  async function ghRestoreAll(){
+    const cfg = ghCfg();
+    const items = await ghCall("GET", "/repos/" + cfg.repo + "/contents/" + GH_FOLDER + ghRef(cfg));
+    const files = (Array.isArray(items) ? items : []).filter(function(it){
+      return it.type === "file" && /^\d{4}-\d{2}-\d{2}\.json$/.test(it.name);
+    });
+    if (!files.length) throw new Error("云端 " + GH_FOLDER + "/ 里还没有备份文件");
+    let added = 0, replaced = 0, skipped = 0;
+    for (let i=0;i<files.length;i++){
+      const f = files[i];
+      const date = f.name.replace(/\.json$/, "");
+      ghStatus("恢复中 " + (i+1) + "/" + files.length + "：" + date, "");
+      const exists = !!localStorage.getItem(LS_PREFIX + date);
+      if (exists && !cfg.overwrite){ skipped++; continue; }
+      const got = await ghCall("GET", "/repos/" + cfg.repo + "/contents/" + f.path + ghRef(cfg));
+      const text = b64decodeUtf8(got && got.content);
+      const obj = JSON.parse(text);
+      localStorage.setItem(LS_PREFIX + date, JSON.stringify(normalize(obj)));
+      if (exists) replaced++; else added++;
+    }
+    if (added || replaced){
+      state = load(currentDate);
+      sel = null;
+      render();
+      resetHistory();
+    }
+    return "恢复完成：新增 " + added + " 天" + (replaced ? "，覆盖 " + replaced + " 天" : "") +
+           (skipped ? "，跳过本机已有 " + skipped + " 天" : "");
+  }
+  function ghMaybeAuto(){
+    const cfg = ghCfg();
+    if (!cfg.auto || !cfg.token || !cfg.repo) return;
+    clearTimeout(ghAutoTimer);
+    ghAutoTimer = setTimeout(ghAutoBackupNow, GH_IDLE_MS);
+  }
+  function ghAutoBackupNow(){
+    const cfg = ghCfg();
+    if (!cfg.auto || !cfg.token || !cfg.repo) return;
+    const raw = localStorage.getItem(LS_PREFIX + currentDate);
+    if (!raw) return;
+    if (ghLoadMarks()[currentDate] === ghHash(raw)) return;
+    if (ghBusy){ ghMaybeAuto(); return; }
+    ghBusy = true;
+    ghStatus("自动备份中…", "");
+    ghBackupDate(currentDate, {force:true}).then(function(msg){
+      ghBusy = false;
+      ghStatus(msg, "ok");
+    }).catch(function(err){
+      ghBusy = false;
+      ghStatus("自动备份失败：" + ghFriendly(err), "bad");
+    });
+  }
+  function ghRun(promise, label){
+    if (ghBusy){ toast("正在处理，请稍候…"); return; }
+    ghBusy = true;
+    ghStatus(label + "…", "");
+    promise.then(function(msg){
+      ghBusy = false;
+      ghStatus(msg, "ok");
+      toast(msg);
+    }).catch(function(err){
+      ghBusy = false;
+      const m = ghFriendly(err);
+      ghStatus("失败：" + m, "bad");
+      toast("失败：" + m);
+    });
+  }
+  function ghInit(){
+    const btn = ghEl("ghBtn"), panel = ghEl("ghPanel");
+    if (!btn || !panel) return;
+    let repo = GH_DEFAULT_REPO, branch = "", tok = "", auto = false;
+    try{
+      repo = localStorage.getItem(GH_KEYS.repo) || GH_DEFAULT_REPO;
+      branch = localStorage.getItem(GH_KEYS.branch) || "";
+      tok = localStorage.getItem(GH_KEYS.token) || "";
+      auto = localStorage.getItem(GH_KEYS.auto) === "1";
+    }catch(e){}
+    if (ghEl("ghRepo")) ghEl("ghRepo").value = repo;
+    if (ghEl("ghBranch")) ghEl("ghBranch").value = branch;
+    if (ghEl("ghToken")) ghEl("ghToken").value = tok;
+    if (ghEl("ghAuto")) ghEl("ghAuto").checked = auto;
+    if (ghEl("ghRemember")) ghEl("ghRemember").checked = !!tok;
+    ghStatus(repo && tok ? "已配置：" + repo : (repo ? "已填仓库，还差 token" : "未配置"), repo && tok ? "ok" : "");
+
+    function persist(){
+      const c = ghCfg();
+      try{
+        localStorage.setItem(GH_KEYS.repo, c.repo);
+        localStorage.setItem(GH_KEYS.branch, c.branch);
+        localStorage.setItem(GH_KEYS.auto, c.auto ? "1" : "0");
+        if (c.remember && c.token) localStorage.setItem(GH_KEYS.token, c.token);
+        if (!c.remember) localStorage.removeItem(GH_KEYS.token);
+      }catch(e){}
+      ghStatus(c.token && c.repo ? "设置已保存：" + c.repo : "还差 token 或仓库名", c.token && c.repo ? "ok" : "");
+    }
+    btn.addEventListener("click", function(){
+      const open = panel.classList.toggle("open");
+      btn.classList.toggle("on", open);
+      if (open){
+        const r = !ghEl("ghRepo").value ? ghEl("ghRepo") : (!ghEl("ghToken").value ? ghEl("ghToken") : ghEl("ghRepo"));
+        if (r) r.focus();
+      }
+    });
+    ghEl("ghClose").addEventListener("click", function(){
+      panel.classList.remove("open");
+      btn.classList.remove("on");
+    });
+    ghEl("ghSaveCfg").addEventListener("click", function(){ persist(); toast("备份设置已保存"); });
+    ["ghRepo","ghBranch"].forEach(function(id){
+      const e = ghEl(id);
+      if (e) e.addEventListener("change", persist);
+    });
+    ["ghAuto","ghRemember"].forEach(function(id){
+      const e = ghEl(id);
+      if (e) e.addEventListener("change", function(){ persist(); if (e.checked) ghMaybeAuto(); });
+    });
+    ghEl("ghNow").addEventListener("click", function(){
+      ghRun(ghBackupDate(currentDate, {force:true}), "备份本篇");
+    });
+    ghEl("ghAll").addEventListener("click", function(){ ghRun(ghBackupAll(), "备份全部日期"); });
+    ghEl("ghRestore").addEventListener("click", function(){ ghRun(ghRestoreAll(), "从云端恢复"); });
+    ghEl("ghForget").addEventListener("click", function(){
+      try{ localStorage.removeItem(GH_KEYS.token); }catch(e){}
+      if (ghEl("ghToken")) ghEl("ghToken").value = "";
+      if (ghEl("ghRemember")) ghEl("ghRemember").checked = false;
+      ghStatus("已清除本机 token", "");
+      toast("已清除本机保存的 token");
+    });
   }
   function setPath(path, val){
     const p = path.split(".");
@@ -1994,6 +2327,10 @@
       updateToolbar();
     });
     window.addEventListener("beforeunload", save);
+    ghInit();
+    document.addEventListener("visibilitychange", function(){
+      if (document.hidden) ghAutoBackupNow();
+    });
 
     let rzTimer = null;
     window.addEventListener("resize", function(){
