@@ -314,17 +314,14 @@
   <input type="date" id="datePick">
   <button class="icon" id="nextDay" title="后一天">›</button>
   <button id="todayBtn">今天</button>
-  <button id="undoBtn" title="上一步（Ctrl+Z）">↶ 上一步</button>
-  <button id="redoBtn" title="下一步（Ctrl+Y）">↷ 下一步</button>
+  <button class="icon" id="undoBtn" title="上一步（Ctrl+Z）">↶</button>
+  <button class="icon" id="redoBtn" title="下一步（Ctrl+Y）">↷</button>
   <span class="spacer"></span>
   <span class="status" id="status"></span>
-  <button id="copyPrev" title="把最近一份记录的内容填入本篇">复制上一次记录</button>
-  <button id="fillTpl">示例内容</button>
-  <button id="clearDay">清空本篇</button>
-  <button id="copyMd">复制 Markdown</button>
-  <button id="selectMode" title="整页文字可任意框选、复制">选择模式</button>
+  <button id="copyPrev" title="把最近一份填写过的日记复制到本篇">复制昨天</button>
+  <button id="fillTpl" title="载入示例内容">示例</button>
+  <button id="clearDay" title="清空这一篇">清空</button>
   <button class="primary" id="exportMd">导出 .md</button>
-  <button id="printBtn">打印 / PDF</button>
 </div>
 
 <div class="page">
@@ -1964,37 +1961,14 @@
       toast("已清空本篇");
     });
     document.getElementById("exportMd").addEventListener("click", downloadMd);
-    document.getElementById("selectMode").addEventListener("click", function(){
-      selectMode = !selectMode;
-      editingTables = { monthly:false, weekly:false };
-      sel = null;
-      document.getElementById("selectMode").classList.toggle("on", selectMode);
-      render();
-      toast(selectMode ? "选择模式：整页文字可任意框选、Ctrl+A 全选、复制（Esc 退出）" : "已退出选择模式");
-    });
-    document.getElementById("copyMd").addEventListener("click", async function(){
-      const md = toMarkdown();
-      try{
-        await navigator.clipboard.writeText(md);
-        toast("Markdown 已复制");
-      }catch(e){
-        const ta = document.createElement("textarea");
-        ta.value = md;
-        ta.style.position = "fixed"; ta.style.opacity = "0";
-        document.body.appendChild(ta); ta.select();
-        try{ document.execCommand("copy"); toast("Markdown 已复制"); }
-        catch(e2){ toast("复制失败，请手动导出"); }
-        ta.remove();
-      }
-    });
-    document.getElementById("printBtn").addEventListener("click", function(){ window.print(); });
     document.getElementById("undoBtn").addEventListener("click", doUndo);
     document.getElementById("redoBtn").addEventListener("click", doRedo);
 
     document.addEventListener("keydown", function(e){
       if (e.key === "Escape" && selectMode){
         selectMode = false;
-        document.getElementById("selectMode").classList.remove("on");
+        const sm = document.getElementById("selectMode");
+        if (sm) sm.classList.remove("on");
         render();
         return;
       }
