@@ -2330,7 +2330,7 @@
     });
     const frogRows = state.frogs.map(function(r, i){
       return '<tr>' +
-        '<td class="wk-fix">' + ["①","②","③"][i] + '</td>' +
+        '<td class="wk-fix">' + (i + 1) + '</td>' +
         '<td>' + ed("frogs." + i + ".text", r.text, "本月最重要成果…") + '</td>' +
       '</tr>';
     });
@@ -2355,7 +2355,7 @@
 
     appEl.innerHTML =
       '<div class="week-page month-page">' +
-        '<div class="wk-title">易效能 · 月度检视表（月报）</div>' +
+        '<div class="wk-title">月度检视表（月报）</div>' +
         '<div class="wk-meta">' +
           '<label><span>时间：</span>' + ed("time", state.time, monthDisplay(currentMonth), { single:true }) + '</label>' +
           '<label><span>本月关键词：</span>' + ed("keyword", state.keyword, "写下本月关键词…", { single:true }) + '</label>' +
@@ -3316,7 +3316,7 @@
     const L = [];
     const t = function(v){ return htmlToText(v); };
     const line = function(arr){ return "| " + arr.map(cellMd).join(" | ") + " |"; };
-    L.push("# 易效能 · 月度检视表（月报）", "");
+    L.push("# 月度检视表（月报）", "");
     L.push("- 时间：" + (t(state.time).trim() || monthDisplay(currentMonth)));
     L.push("- 本月关键词：" + (t(state.keyword).trim() || "—"));
 
@@ -3338,7 +3338,7 @@
     L.push(line(["序号","成果"]));
     L.push(line(["---","---"]));
     state.frogs.forEach(function(r, i){
-      L.push(line([["①","②","③"][i], t(r.text)]));
+      L.push(line([String(i + 1), t(r.text)]));
     });
 
     L.push("", "## 四、本月卡点与教训（事实/现象→原因→对策）", "");
