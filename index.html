@@ -310,6 +310,9 @@
   /* ================= 选择模式：整页文字可连续框选 ================= */
   #app.select-mode{cursor:text}
   #app.select-mode .ed{background:transparent;box-shadow:none}
+  body.cell-selecting,body.cell-selecting *{
+    user-select:none !important;-webkit-user-select:none !important;
+  }
 
   /* ================= 文字颜色浮条 ================= */
   .colorbar{
@@ -2213,7 +2216,7 @@
     }).join("");
     return '<div class="wk-tblwrap" data-wk-table="' + key + '">' +
       '<div class="tbl-bar">' +
-        '<span class="tbl-hint" hidden>拖动单元格框选文字；拖边框调列宽/行高；顶部 A−/A+ 调字号</span>' +
+        '<span class="tbl-hint" hidden>拖动单元格可框选；拖边框调列宽/行高；顶部 A−/A+ 调字号</span>' +
         '<button type="button" class="tbl-toggle" data-wk-toggle="' + key + '">表格编辑</button>' +
       '</div>' +
       '<table class="doc wk-table ' + cls + '">' + colgroup + '<tbody>' + trs + '</tbody></table>' +
@@ -2757,10 +2760,7 @@
     appEl.querySelectorAll(".wk-table td.sel").forEach(function(td){ td.classList.remove("sel"); });
     if (!reportSel) return;
     const wrap = appEl.querySelector('.wk-tblwrap[data-wk-table="' + reportSel.key + '"]');
-    if (!wrap || !editingTables[reportSel.key]){
-      reportSel = null;
-      return;
-    }
+    if (!wrap){ reportSel = null; return; }
     wrap.querySelectorAll("td[data-r]").forEach(function(td){
       const r = Number(td.dataset.r), c = Number(td.dataset.c);
       if (r >= reportSel.r1 && r <= reportSel.r2 && c >= reportSel.c1 && c <= reportSel.c2){
@@ -2772,7 +2772,7 @@
   function reportSelectionEditors(){
     if (!reportSel) return [];
     const wrap = appEl.querySelector('.wk-tblwrap[data-wk-table="' + reportSel.key + '"]');
-    if (!wrap || !editingTables[reportSel.key]) return [];
+    if (!wrap) return [];
     const out = [];
     wrap.querySelectorAll("td[data-r]").forEach(function(td){
       const r = Number(td.dataset.r), c = Number(td.dataset.c);
@@ -3354,30 +3354,42 @@
     appEl.querySelectorAll(".wk-tblwrap").forEach(function(wrap){
       const key = wrap.dataset.wkTable;
       wrap.addEventListener("pointerdown", function(e){
-        if (!editingTables[key]) return;
         if (e.target.closest(".chandle,.rhandle,.tbl-toggle,.tbl-tools")) return;
         const td = e.target.closest("td");
         if (!td || td.dataset.r == null) return;
-        e.preventDefault();
         const r0 = Number(td.dataset.r), c0 = Number(td.dataset.c);
-        reportSel = { key:key, r1:r0, c1:c0, r2:r0, c2:c0 };
-        paintReportSelection();
+        const editing = !!editingTables[key];
+        let selecting = editing;
+        if (editing){
+          e.preventDefault();
+          reportSel = { key:key, r1:r0, c1:c0, r2:r0, c2:c0 };
+          paintReportSelection();
+        }
         const onMove = function(ev){
           const el = document.elementFromPoint(ev.clientX, ev.clientY);
           const t2 = el && el.closest ? el.closest("td") : null;
           if (!t2 || !wrap.contains(t2) || t2.dataset.r == null) return;
           const rr = Number(t2.dataset.r), cc = Number(t2.dataset.c);
+          if (!selecting && rr === r0 && cc === c0) return;
+          if (!selecting){
+            selecting = true;
+            document.body.classList.add("cell-selecting");
+          }
           reportSel = {
             key:key,
             r1:Math.min(r0, rr), c1:Math.min(c0, cc),
             r2:Math.max(r0, rr), c2:Math.max(c0, cc)
           };
           paintReportSelection();
+          const s = window.getSelection();
+          if (s) s.removeAllRanges();
+          ev.preventDefault();
         };
         const onUp = function(){
           window.removeEventListener("pointermove", onMove);
           window.removeEventListener("pointerup", onUp);
           window.removeEventListener("pointercancel", onUp);
+          document.body.classList.remove("cell-selecting");
         };
         window.addEventListener("pointermove", onMove);
         window.addEventListener("pointerup", onUp);
@@ -3819,7 +3831,7 @@
     document.addEventListener("pointerdown", function(e){
       if (!reportSel) return;
       const t = e.target;
-      if (t && t.closest && (t.closest(".wk-tblwrap") || t.closest("#fontMinus,#fontPlus"))) return;
+      if (t && t.closest && t.closest("#fontMinus,#fontPlus")) return;
       reportSel = null;
       paintReportSelection();
     }, true);
