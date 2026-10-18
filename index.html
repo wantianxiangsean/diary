@@ -339,7 +339,10 @@
   .foot{text-align:center;color:#a9a9a9;font-size:14.5px;margin-top:34px}
 
   /* ================= 周报 ================= */
-  .week-page{font-size:17px}
+  .week-page{font-size:17px;--report-body-size:15px;--report-schedule-size:14px}
+  .week-page .wk-table tbody tr:not(:first-child){font-size:var(--report-body-size)}
+  .week-page .wk-table.schedule tbody tr:not(:first-child){font-size:var(--report-schedule-size)}
+  .week-page .wk-reflect-row{font-size:var(--report-body-size)}
   .wk-title{
     margin:0 0 10px;padding:10px 12px;border-radius:5px;
     background:#1B75BB;color:#fff;text-align:center;
@@ -374,7 +377,7 @@
   }
   .wk-table td.wk-dim{
     vertical-align:middle;text-align:center;font-weight:700;color:#fff;
-    font-size:15.5px;padding:6px 4px;line-height:1.35;
+    font-size:15px;padding:6px 4px;line-height:1.35;
   }
   .wk-table td.c-blue{background:#4472C4}
   .wk-table td.c-green{background:#70AD47}
@@ -431,6 +434,8 @@
     .ed{background:transparent !important;box-shadow:none !important}
     .ed:empty::before{content:none !important}
     .wk-table{font-size:11.5px}
+    .week-page{--report-body-size:11.5px;--report-schedule-size:11.5px}
+    .week-page .wk-table td.wk-dim{font-size:12px}
     .wk-table td .ed{min-height:1.6em}
     .wk-table.frogs td{height:46px}
     .wk-table.colors td{height:42px}
