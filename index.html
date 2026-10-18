@@ -929,6 +929,7 @@
   let editingTables = { monthly:false, weekly:false };
   let selectMode = false;
   let sel = null;          // { key, r1, c1, r2, c2 }
+  let reportSel = null;    // 周报/月报表中的单元格框选
   let dragging = null;     // { key, r0, c0 }
   let colorBar = null;
 
@@ -2035,7 +2036,7 @@
 
     return '<div class="tblwrap" data-table="' + key + '">' +
       '<div class="tbl-bar">' +
-        '<span class="tbl-hint" hidden>拖动选择单元格，拖边框调整大小</span>' +
+        '<span class="tbl-hint" hidden>拖动框选单元格，拖边框调整大小；顶部 A−/A+ 调字号</span>' +
         '<button type="button" class="tbl-toggle" data-tbl-toggle="' + key + '">表格编辑</button>' +
       '</div>' +
       '<table class="doc">' + colgroup + "<tbody>" + body + "</tbody></table>" +
@@ -2084,6 +2085,7 @@
      整页渲染
      ============================================================ */
   function render(){
+    reportSel = null;
     if (mode === "week"){ renderWeekly(); return; }
     if (mode === "month"){ renderMonthly(); return; }
     appEl.innerHTML =
@@ -2195,14 +2197,18 @@
       return '<col style="width:' + w + '%">';
     }).join("") + "</colgroup>";
     const trs = rows.map(function(row, i){
+      let c = 0;
+      const withCoords = row.replace(/<td\b/g, function(){
+        return '<td data-r="' + i + '" data-c="' + (c++) + '"';
+      });
       const h = heights[i];
       return (typeof h === "number" && h > 0)
-        ? row.replace("<tr>", '<tr style="height:' + h + 'px">')
-        : row;
+        ? withCoords.replace("<tr>", '<tr style="height:' + h + 'px">')
+        : withCoords;
     }).join("");
     return '<div class="wk-tblwrap" data-wk-table="' + key + '">' +
       '<div class="tbl-bar">' +
-        '<span class="tbl-hint" hidden>拖动边框调整列宽/行高，双击行把手复位</span>' +
+        '<span class="tbl-hint" hidden>拖动单元格框选文字；拖边框调列宽/行高；顶部 A−/A+ 调字号</span>' +
         '<button type="button" class="tbl-toggle" data-wk-toggle="' + key + '">表格编辑</button>' +
       '</div>' +
       '<table class="doc wk-table ' + cls + '">' + colgroup + '<tbody>' + trs + '</tbody></table>' +
@@ -2742,6 +2748,76 @@
     });
   }
 
+  function paintReportSelection(){
+    appEl.querySelectorAll(".wk-table td.sel").forEach(function(td){ td.classList.remove("sel"); });
+    if (!reportSel) return;
+    const wrap = appEl.querySelector('.wk-tblwrap[data-wk-table="' + reportSel.key + '"]');
+    if (!wrap || !editingTables[reportSel.key]){
+      reportSel = null;
+      return;
+    }
+    wrap.querySelectorAll("td[data-r]").forEach(function(td){
+      const r = Number(td.dataset.r), c = Number(td.dataset.c);
+      if (r >= reportSel.r1 && r <= reportSel.r2 && c >= reportSel.c1 && c <= reportSel.c2){
+        td.classList.add("sel");
+      }
+    });
+  }
+
+  function reportSelectionEditors(){
+    if (!reportSel) return [];
+    const wrap = appEl.querySelector('.wk-tblwrap[data-wk-table="' + reportSel.key + '"]');
+    if (!wrap || !editingTables[reportSel.key]) return [];
+    const out = [];
+    wrap.querySelectorAll("td[data-r]").forEach(function(td){
+      const r = Number(td.dataset.r), c = Number(td.dataset.c);
+      if (r >= reportSel.r1 && r <= reportSel.r2 && c >= reportSel.c1 && c <= reportSel.c2){
+        td.querySelectorAll(".ed[data-path]").forEach(function(el){ out.push(el); });
+      }
+    });
+    return out;
+  }
+
+  function gridSelectionEditors(){
+    if (!sel) return [];
+    const wrap = appEl.querySelector('.tblwrap[data-table="' + sel.key + '"]');
+    if (!wrap) return [];
+    const out = [];
+    wrap.querySelectorAll("td.sel").forEach(function(td){
+      td.querySelectorAll(".ed[data-path]").forEach(function(el){ out.push(el); });
+    });
+    return out;
+  }
+
+  function bumpEditorSize(el, delta){
+    const path = el && el.dataset ? el.dataset.path : "";
+    if (!path) return false;
+    if (!state.sizes) state.sizes = {};
+    const cur = Number(state.sizes[path]) || parseFloat(getComputedStyle(el).fontSize) || 17.5;
+    const next = Math.max(10, Math.min(48, Math.round((cur + delta) * 10) / 10));
+    state.sizes[path] = next;
+    el.style.fontSize = next + "px";
+    return true;
+  }
+
+  function applySizeToEditors(els, delta){
+    if (!els || !els.length) return false;
+    let count = 0;
+    els.forEach(function(el){ if (bumpEditorSize(el, delta)) count++; });
+    if (!count) return false;
+    scheduleSave();
+    toast("已调整 " + count + " 个单元格的字号");
+    return true;
+  }
+
+  function applySizeToReportSelection(delta){
+    return applySizeToEditors(reportSelectionEditors(), delta);
+  }
+
+  function applySizeToGridSelection(delta){
+    return applySizeToEditors(gridSelectionEditors(), delta);
+  }
+
   function updateToolbar(){
     appEl.querySelectorAll(".tblwrap").forEach(function(wrap){
       const key = wrap.dataset.table;
@@ -3041,6 +3117,8 @@
   }
 
   function changeEditorFontSize(delta){
+    if (applySizeToReportSelection(delta)) return;
+    if (applySizeToGridSelection(delta)) return;
     if (applySizeToSelection(delta)) return;
     let el = document.activeElement;
     if (!el || !el.classList || !el.classList.contains("ed")){
@@ -3053,13 +3131,9 @@
     }
     const path = el.dataset.path;
     if (!path) return;
-    if (!state.sizes) state.sizes = {};
-    const cur = Number(state.sizes[path]) || parseFloat(getComputedStyle(el).fontSize) || 17.5;
-    const next = Math.max(10, Math.min(48, Math.round((cur + delta) * 10) / 10));
-    state.sizes[path] = next;
-    el.style.fontSize = next + "px";
+    if (!bumpEditorSize(el, delta)) return;
     scheduleSave();
-    toast("字号 " + next + "px");
+    toast("字号 " + state.sizes[path] + "px");
   }
 
   /* ============================================================
@@ -3266,6 +3340,39 @@
           window.removeEventListener("pointerup", onUp);
           window.removeEventListener("pointercancel", onUp);
           updateToolbar();
+        };
+        window.addEventListener("pointermove", onMove);
+        window.addEventListener("pointerup", onUp);
+        window.addEventListener("pointercancel", onUp);
+      });
+    });
+    appEl.querySelectorAll(".wk-tblwrap").forEach(function(wrap){
+      const key = wrap.dataset.wkTable;
+      wrap.addEventListener("pointerdown", function(e){
+        if (!editingTables[key]) return;
+        if (e.target.closest(".chandle,.rhandle,.tbl-toggle,.tbl-tools")) return;
+        const td = e.target.closest("td");
+        if (!td || td.dataset.r == null) return;
+        e.preventDefault();
+        const r0 = Number(td.dataset.r), c0 = Number(td.dataset.c);
+        reportSel = { key:key, r1:r0, c1:c0, r2:r0, c2:c0 };
+        paintReportSelection();
+        const onMove = function(ev){
+          const el = document.elementFromPoint(ev.clientX, ev.clientY);
+          const t2 = el && el.closest ? el.closest("td") : null;
+          if (!t2 || !wrap.contains(t2) || t2.dataset.r == null) return;
+          const rr = Number(t2.dataset.r), cc = Number(t2.dataset.c);
+          reportSel = {
+            key:key,
+            r1:Math.min(r0, rr), c1:Math.min(c0, cc),
+            r2:Math.max(r0, rr), c2:Math.max(c0, cc)
+          };
+          paintReportSelection();
+        };
+        const onUp = function(){
+          window.removeEventListener("pointermove", onMove);
+          window.removeEventListener("pointerup", onUp);
+          window.removeEventListener("pointercancel", onUp);
         };
         window.addEventListener("pointermove", onMove);
         window.addEventListener("pointerup", onUp);
@@ -3704,6 +3811,13 @@
     });
     fontMinus.addEventListener("click", function(){ changeEditorFontSize(-1); });
     fontPlus.addEventListener("click", function(){ changeEditorFontSize(1); });
+    document.addEventListener("pointerdown", function(e){
+      if (!reportSel) return;
+      const t = e.target;
+      if (t && t.closest && (t.closest(".wk-tblwrap") || t.closest("#fontMinus,#fontPlus"))) return;
+      reportSel = null;
+      paintReportSelection();
+    }, true);
 
     document.addEventListener("keydown", function(e){
       if (e.key === "Escape" && selectMode){
