@@ -55,6 +55,18 @@
     font:inherit;font-size:15.5px;padding:4px 8px;border:1px solid #cfcfcf;
     border-radius:6px;background:#fff;color:#222;
   }
+  .topbar input[type="week"]{
+    font:inherit;font-size:15.5px;padding:4px 8px;border:1px solid #cfcfcf;
+    border-radius:6px;background:#fff;color:#222;
+  }
+  .topbar [hidden]{display:none !important}
+  .modetabs{display:inline-flex;align-items:center;gap:0;margin-right:3px;border:1px solid #cfcfcf;border-radius:7px;overflow:hidden;background:#f7f7f7}
+  .modetabs button{
+    border:0 !important;border-radius:0 !important;background:transparent !important;
+    padding:5px 12px !important;color:#5d6870 !important;
+  }
+  .modetabs button + button{border-left:1px solid #d8d8d8 !important}
+  .modetabs button.on{background:var(--blue) !important;color:#fff !important}
   .spacer{flex:1 1 auto}
   .status{font-size:14.5px;color:#8b8b8b;min-width:80px;text-align:right}
   .status.saving{color:#c98a2e}
@@ -157,6 +169,9 @@
     background:var(--blue);color:#fff;font-weight:700;font-size:18.5px;
     padding:5px 12px;letter-spacing:.01em;
   }
+  .banner.wk-red{background:#C00000}
+  .banner.wk-yellow{background:#FFC000;color:#3f2f00}
+  .banner.wk-green{background:#70AD47}
 
   /* ================= 橙红小标题 ================= */
   .idx-red{margin:22px 0 5px}
@@ -309,6 +324,77 @@
   }
 
   .foot{text-align:center;color:#a9a9a9;font-size:14.5px;margin-top:34px}
+
+  /* ================= 周报 ================= */
+  .week-page{font-size:17px}
+  .wk-title{
+    margin:0 0 10px;padding:10px 12px;border-radius:5px;
+    background:#1B75BB;color:#fff;text-align:center;
+    font-size:23px;font-weight:700;letter-spacing:.08em;
+  }
+  .wk-meta{
+    display:flex;flex-wrap:wrap;align-items:center;gap:7px 22px;
+    margin:0 0 18px;padding:8px 10px;border:1px solid #d5e1ea;border-radius:5px;
+    background:#f7fbfe;font-size:16px;
+  }
+  .wk-meta label{display:flex;align-items:center;gap:4px;flex:1 1 auto;min-width:180px}
+  .wk-meta label > span{flex:0 0 auto;color:#4f5d68}
+  .wk-meta .ed{flex:1 1 auto;min-width:0;border-bottom:1px solid #c7d6e1;border-radius:0;padding:1px 5px}
+  .wk-meta .ed:focus{border-bottom-color:transparent}
+  .wk-tblwrap{position:relative;margin:5px 0 4px}
+  .wk-tblwrap.editing table.doc{touch-action:none}
+  .wk-tblwrap.editing table.doc .ed{
+    pointer-events:none;user-select:none;-webkit-user-select:none;
+  }
+  .wk-table{margin:4px 0 0;font-size:16.5px}
+  .wk-table td{vertical-align:top;padding:5px 7px}
+  .wk-table td .ed{min-height:2.35em;padding:1px 3px;line-height:1.55}
+  .wk-table td.t-head{text-align:center;vertical-align:middle;padding:7px 6px}
+  .wk-table td.t-head .ed{text-align:center;min-height:0;font-weight:700}
+  .wk-table td.wk-fix{
+    text-align:center;vertical-align:middle;font-weight:700;color:#3f3f3f;
+    background:#f6f7f8;
+  }
+  .wk-table td.wk-dim{
+    vertical-align:middle;text-align:center;font-weight:700;color:#fff;
+    font-size:15.5px;padding:6px 4px;line-height:1.35;
+  }
+  .wk-table td.c-blue{background:#4472C4}
+  .wk-table td.c-green{background:#70AD47}
+  .wk-table td.c-yellow{background:#FFC000;color:#4a3500}
+  .wk-table td.c-orange{background:#ED7D31}
+  .wk-table td.c-red{background:#C00000}
+  .wk-reflect{display:grid;gap:8px;margin-top:4px}
+  .wk-reflect-row{
+    display:grid;grid-template-columns:minmax(210px,26%) 1fr;
+    border:1px solid var(--line);border-radius:2px;overflow:hidden;background:#fff;
+  }
+  .wk-reflect-q{
+    display:flex;align-items:center;padding:8px 10px;
+    background:#FFF3CF;border-right:1px solid var(--line);
+    font-weight:700;color:#5d4a18;line-height:1.45;
+  }
+  .wk-reflect-a{min-height:76px;padding:5px 8px}
+  .wk-reflect-a .ed{min-height:66px}
+  .wk-summary{
+    margin:4px 0 0;border:1px solid var(--line);border-radius:3px;background:#FFFDF3;
+  }
+  .wk-summary-label{
+    padding:5px 10px;background:#F8E19B;border-bottom:1px solid var(--line);
+    font-weight:700;color:#413E3E;
+  }
+  .wk-summary-body{padding:8px 10px}
+  .wk-summary-body .ed{min-height:2.6em}
+  .wk-empty-note{color:#8b8b8b;font-size:14px;margin:2px 0 0}
+
+  @media (max-width:720px){
+    .week-page .sec-body{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .week-page .wk-table{min-width:720px}
+    .wk-reflect-row{grid-template-columns:1fr}
+    .wk-reflect-q{border-right:0;border-bottom:1px solid var(--line)}
+    .wk-meta label{min-width:100%}
+  }
+
   .toast{
     position:fixed;left:50%;bottom:26px;transform:translate(-50%,16px);
     background:#1a1a1a;color:#fff;padding:9px 18px;border-radius:9px;
@@ -321,11 +407,22 @@
     @page{margin:12mm}
     html,body{background:#fff}
     body{font-size:14px}
-    .topbar,.ghpanel,.addbtn,.cellbtn,.toolrow,.toast,.copynote,
+    .topbar,.ghpanel,.addbtn,.cellbtn,.toolrow,.toast,.copynote,.foot,.wk-empty-note,
     .tbl-bar,.tbl-overlay,.tbl-tools,.colorbar{display:none !important}
     .page{box-shadow:none;margin:0;width:auto;padding:0;max-width:none}
     .banner,.item,.sec,table.doc tr,.goal{break-inside:avoid}
     .ed{background:transparent !important;box-shadow:none !important}
+    .ed:empty::before{content:none !important}
+    .wk-table{font-size:11.5px}
+    .wk-table td .ed{min-height:1.6em}
+    .wk-table.frogs td{height:46px}
+    .wk-table.colors td{height:42px}
+    .wk-table.plan td{height:46px}
+    .wk-table.schedule td{height:40px}
+    .wk-table.goals td{height:34px}
+    .wk-reflect-a{min-height:56px}
+    .wk-reflect-a .ed{min-height:46px}
+    .wk-reflect-row,.wk-summary{break-inside:avoid}
     *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   }
 </style>
@@ -333,11 +430,19 @@
 <body>
 
 <div class="topbar">
-  <span class="brand">每日日记</span>
-  <button class="icon" id="prevDay" title="前一天">‹</button>
-  <input type="date" id="datePick">
-  <button class="icon" id="nextDay" title="后一天">›</button>
-  <button id="todayBtn">今天</button>
+  <span class="brand" id="brand">每日日记</span>
+  <div class="modetabs" role="group" aria-label="记录类型">
+    <button type="button" id="modeDay" class="on">日记</button>
+    <button type="button" id="modeWeek">周报</button>
+  </div>
+  <button class="icon day-only" id="prevDay" title="前一天">‹</button>
+  <input class="day-only" type="date" id="datePick">
+  <button class="icon day-only" id="nextDay" title="后一天">›</button>
+  <button class="day-only" id="todayBtn">今天</button>
+  <button class="icon week-only" id="prevWeek" title="上一周" hidden>‹</button>
+  <input class="week-only" type="week" id="weekPick" hidden>
+  <button class="icon week-only" id="nextWeek" title="下一周" hidden>›</button>
+  <button class="week-only" id="thisWeekBtn" hidden>本周</button>
   <button class="icon" id="undoBtn" title="上一步（Ctrl+Z）">↶</button>
   <button class="icon" id="redoBtn" title="下一步（Ctrl+Y）">↷</button>
   <span class="spacer"></span>
@@ -361,23 +466,23 @@
   </div>
   <div class="ghrow">
     <label class="ghchk"><input type="checkbox" id="ghAuto"> 自动备份（停止编辑约 10 秒后）</label>
-    <label class="ghchk"><input type="checkbox" id="ghOverwrite"> 恢复时覆盖本机同名日期</label>
+    <label class="ghchk"><input type="checkbox" id="ghOverwrite"> 恢复时覆盖本机同名记录</label>
     <span class="ghstatus" id="ghStatus">未配置</span>
   </div>
   <div class="ghrow">
     <button id="ghSaveCfg">保存设置</button>
     <button id="ghNow">立即备份本篇</button>
-    <button id="ghAll">备份全部日期</button>
+    <button id="ghAll">备份全部</button>
     <button id="ghRestore">从云端恢复</button>
     <button id="ghForget">清除本机 token</button>
     <button id="ghClose">关闭</button>
   </div>
-  <p class="ghnote">日记会写进上面这个仓库的 <code>diary/日期.json</code>，每天一个文件。<strong>请用私有仓库</strong>——用公开仓库等于把日记公开。token 只保存在本机浏览器，建议只给它该仓库的 Contents 读写权限。</p>
+  <p class="ghnote">日记会写进 <code>diary/日期.json</code>，周报会写进 <code>weekly/周.json</code>（如 <code>2026-W42.json</code>）。<strong>请用私有仓库</strong>——用公开仓库等于把日记公开。token 只保存在本机浏览器，建议只给它该仓库的 Contents 读写权限。</p>
 </div>
 
 <div class="page">
   <div id="app"></div>
-  <p class="foot">内容自动保存在本机浏览器中，按日期分别存档 · Ctrl/⌘ + S 立即保存</p>
+  <p class="foot">内容自动保存在本机浏览器中，日记按日期、周报按周分别存档 · Ctrl/⌘ + S 立即保存</p>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -409,7 +514,31 @@
 
   const D_COUNT = 5;
   const DATA_VERSION = 3;
+  const WEEK_DATA_VERSION = 1;
   const COPY_LOOKBACK_DAYS = 30;
+  const COPY_LOOKBACK_WEEKS = 52;
+
+  const WEEK_COLORS = [
+    { key:"blue",   label:"蓝色·工作",                 cls:"c-blue" },
+    { key:"green",  label:"绿色·健康(运动/睡眠/饮食)", cls:"c-green" },
+    { key:"yellow", label:"黄色·学习成长",             cls:"c-yellow" },
+    { key:"orange", label:"橙色·家庭/人际",            cls:"c-orange" },
+    { key:"red",    label:"红色·个人要事/青蛙",        cls:"c-red" }
+  ];
+  const WEEK_GOALS = ["工作事业","家庭亲人","健康身体","学习成长","人际社群","理财财务"];
+  const WEEK_DAYS = ["周一","周二","周三","周四","周五","周六","周日"];
+  const WEEK_SLOTS = [
+    { key:"morning", label:"上午" },
+    { key:"afternoon", label:"下午" },
+    { key:"evening", label:"晚上" }
+  ];
+  const WK_TABLE_META = {
+    frogs:{ cols:[10,24,23,9,16,18], rows:[50,66,66,66] },
+    colors:{ cols:[22,24,24,12,18], rows:[50,64,64,64,64,64] },
+    plan:{ cols:[10,30,12,11,10,27], rows:[50,66,66,66] },
+    schedule:{ cols:[10,12.857,12.857,12.857,12.857,12.857,12.857,12.857], rows:[50,60,60,60] },
+    goals:{ cols:[20,40,40], rows:[50,50,50,50,50,50,50] }
+  };
 
   const COLOR_SWATCHES = [
     { c:"",        t:"默认（去掉选中部分的颜色）" },
@@ -511,6 +640,54 @@
     const dt = new Date(p[0], p[1]-1, p[2]);
     const wk = "日一二三四五六".charAt(dt.getDay());
     return p[0] + "年" + p[1] + "月" + p[2] + "日 星期" + wk;
+  }
+  function pad2(n){ return (n < 10 ? "0" : "") + n; }
+  function cnDateOnly(iso){
+    const p = iso.split("-").map(Number);
+    return p[0] + "年" + p[1] + "月" + p[2] + "日";
+  }
+  /* ISO 周：周一为一周开始，跨年时以周四所在年份为周所属年份 */
+  function isoWeekInfo(dateIso){
+    const p = dateIso.split("-").map(Number);
+    const dt = new Date(p[0], p[1]-1, p[2]);
+    const monday = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() - ((dt.getDay() + 6) % 7));
+    const thursday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 3);
+    const isoYear = thursday.getFullYear();
+    const jan4 = new Date(isoYear, 0, 4);
+    const week1Mon = new Date(isoYear, 0, 4 - ((jan4.getDay() + 6) % 7));
+    const week = Math.round((monday.getTime() - week1Mon.getTime()) / 604800000) + 1;
+    const start = todayISO(monday);
+    return { year:isoYear, week:week, key:isoYear + "-W" + pad2(week), start:start, end:shiftDate(start, 6) };
+  }
+  function weekKeyFromDate(iso){ return isoWeekInfo(iso).key; }
+  function todayWeekKey(){ return weekKeyFromDate(todayISO()); }
+  function weekStartFromKey(key){
+    const m = /^(\d{4})-W(\d{2})$/.exec(String(key || ""));
+    if (!m) return weekStartFromKey(todayWeekKey());
+    const year = Number(m[1]), week = Math.max(1, Math.min(53, Number(m[2])));
+    const jan4 = new Date(year, 0, 4);
+    const week1Mon = new Date(year, 0, 4 - ((jan4.getDay() + 6) % 7));
+    const d = new Date(week1Mon.getFullYear(), week1Mon.getMonth(), week1Mon.getDate() + (week - 1) * 7);
+    return todayISO(d);
+  }
+  function shiftWeekKey(key, delta){
+    return weekKeyFromDate(shiftDate(weekStartFromKey(key), delta * 7));
+  }
+  function weekDateRange(key){
+    const start = weekStartFromKey(key);
+    return { start:start, end:shiftDate(start, 6) };
+  }
+  function cnWeekRange(key){
+    const r = weekDateRange(key);
+    return cnDateOnly(r.start) + " ~ " + cnDateOnly(r.end);
+  }
+  function weekNoText(key){
+    const m = /^(\d{4})-W(\d{2})$/.exec(String(key || ""));
+    return "第 " + (m ? Number(m[2]) : 1) + " 周";
+  }
+  function weekDisplay(key){
+    const m = /^(\d{4})-W(\d{2})$/.exec(String(key || ""));
+    return m ? m[1] + "年第" + Number(m[2]) + "周" : String(key || "");
   }
   const esc = (s) => String(s == null ? "" : s)
     .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
@@ -670,8 +847,12 @@
      状态
      ============================================================ */
   const LS_PREFIX = "diary.v2.";
+  const LS_WEEK_PREFIX = "diary.week.v1.";
+  let mode = "day";                       // day | week
   let state = null;
   let currentDate = todayISO();
+  let currentWeek = weekKeyFromDate(currentDate);
+  let weekPinned = false;
   let saveTimer = null;
   let statusEl = null, appEl = null;
 
@@ -718,6 +899,173 @@
       habits: HABITS.map(function(){ return { checked:false, note:"" }; }),
       __blank:true
     };
+  }
+
+  /* ---------------- 周报状态 ---------------- */
+  function weeklyDefaultLayout(){
+    const out = {};
+    Object.keys(WK_TABLE_META).forEach(function(key){
+      const meta = WK_TABLE_META[key];
+      out[key] = { cols: meta.cols.slice(), rows: meta.rows.slice() };
+    });
+    return out;
+  }
+  function normalizeWeeklyLayout(raw){
+    const out = weeklyDefaultLayout();
+    if (!raw || typeof raw !== "object") return out;
+    Object.keys(out).forEach(function(key){
+      const src = raw[key];
+      if (!src || typeof src !== "object") return;
+      const meta = WK_TABLE_META[key];
+      if (Array.isArray(src.cols) && src.cols.length === meta.cols.length){
+        out[key].cols = normalizeCols(src.cols);
+      }
+      if (Array.isArray(src.rows)){
+        out[key].rows = meta.rows.map(function(_, i){
+          const v = src.rows[i];
+          return (typeof v === "number" && v > 0)
+            ? Math.round(Math.min(400, Math.max(24, v)))
+            : null;
+        });
+      }
+    });
+    return out;
+  }
+  function emptyWeeklyState(key){
+    const k = key || currentWeek;
+    return {
+      __v: WEEK_DATA_VERSION,
+      __blank: true,
+      weekNo: weekNoText(k),
+      dateRange: cnWeekRange(k),
+      frogs: Array.from({length:3}, function(){
+        return { plan:"", actual:"", pct:"", reason:"", rescue:"" };
+      }),
+      colors: WEEK_COLORS.map(function(c){
+        return { plan:"", actual:"", invest:"", reflect:"" };
+      }),
+      reflect: { good:"", bad:"", waste:"", action:"" },
+      nextFrogs: Array.from({length:3}, function(){
+        return { item:"", day:"", start:"", duration:"", standard:"" };
+      }),
+      schedule: {
+        morning: WEEK_DAYS.map(function(){ return ""; }),
+        afternoon: WEEK_DAYS.map(function(){ return ""; }),
+        evening: WEEK_DAYS.map(function(){ return ""; })
+      },
+      goals: WEEK_GOALS.map(function(dim){
+        return { target:"", progress:"" };
+      }),
+      layout: weeklyDefaultLayout(),
+      summary: ""
+    };
+  }
+  function normalizeWeekly(raw, key){
+    const s = emptyWeeklyState(key);
+    if (!raw || typeof raw !== "object") return s;
+    const h = function(v){ return typeof v === "string" ? v : ""; };
+    s.weekNo = h(raw.weekNo) || s.weekNo;
+    s.dateRange = h(raw.dateRange) || s.dateRange;
+
+    if (Array.isArray(raw.frogs)){
+      s.frogs = Array.from({length:3}, function(_, i){
+        const x = raw.frogs[i] || {};
+        return { plan:h(x.plan), actual:h(x.actual), pct:h(x.pct), reason:h(x.reason), rescue:h(x.rescue) };
+      });
+    }
+    if (Array.isArray(raw.colors)){
+      s.colors = WEEK_COLORS.map(function(_, i){
+        const x = raw.colors[i] || {};
+        return { plan:h(x.plan), actual:h(x.actual), invest:h(x.invest), reflect:h(x.reflect) };
+      });
+    }
+    if (raw.reflect && typeof raw.reflect === "object"){
+      ["good","bad","waste","action"].forEach(function(k){ s.reflect[k] = h(raw.reflect[k]); });
+    }
+    if (Array.isArray(raw.nextFrogs)){
+      s.nextFrogs = Array.from({length:3}, function(_, i){
+        const x = raw.nextFrogs[i] || {};
+        return { item:h(x.item), day:h(x.day), start:h(x.start), duration:h(x.duration), standard:h(x.standard) };
+      });
+    }
+    if (raw.schedule && typeof raw.schedule === "object"){
+      ["morning","afternoon","evening"].forEach(function(slot){
+        if (Array.isArray(raw.schedule[slot])){
+          s.schedule[slot] = WEEK_DAYS.map(function(_, i){ return h(raw.schedule[slot][i]); });
+        }
+      });
+    }
+    if (Array.isArray(raw.goals)){
+      s.goals = WEEK_GOALS.map(function(_, i){
+        const x = raw.goals[i] || {};
+        return { target:h(x.target), progress:h(x.progress) };
+      });
+    }
+    s.layout = normalizeWeeklyLayout(raw.layout);
+    s.summary = h(raw.summary);
+    s.__blank = false;
+    return s;
+  }
+
+  function isBlankWeekly(s){
+    if (!s) return true;
+    const b = emptyWeeklyState(currentWeek);
+    return ["frogs","colors","reflect","nextFrogs","schedule","goals","summary"].every(function(k){
+      return sameValue(s[k], b[k]);
+    });
+  }
+
+  function weeklyTemplateState(key){
+    const k = key || currentWeek;
+    const s = emptyWeeklyState(k);
+    s.__blank = false;
+    s.frogs = [
+      { plan:"完成本周最重要的一项工作", actual:"已完成初稿，等待评审", pct:"80%", reason:"中途被临时会议打断", rescue:"周一上午补齐最后一部分" },
+      { plan:"运动 3 次", actual:"完成 2 次", pct:"67%", reason:"周三加班", rescue:"周末补一次有氧" },
+      { plan:"读完一本书", actual:"读完一半", pct:"50%", reason:"晚上刷手机时间偏多", rescue:"下周每天固定读 20 页" }
+    ];
+    s.colors = [
+      { plan:"完成方案初稿", actual:"完成 80%", invest:"12 小时", reflect:"上午专注度最高，重要工作要提前锁定时间" },
+      { plan:"早睡 5 天，运动 3 次", actual:"早睡 4 天，运动 2 次", invest:"3 次 / 150 分钟", reflect:"加班后容易放弃运动，先把运动排进日程" },
+      { plan:"读完一本书，听 2 节课", actual:"读完半本，听完 1 节", invest:"5 小时", reflect:"输入不少，输出偏少" },
+      { plan:"陪伴家人 2 次", actual:"完成 2 次", invest:"2 次", reflect:"固定周末家庭时间效果最好" },
+      { plan:"保护每天 2 小时高能时间", actual:"完成 3 天", invest:"6 小时", reflect:"青蛙要放在一天最清醒的时段" }
+    ];
+    s.reflect = {
+      good:"① 把最重要的工作放在上午完成，效率明显更高。\n② 坚持记录了每天的完成情况。\n③ 周末留出了完整的家庭时间。",
+      bad:"临时会议和即时消息打断了两次深度工作，青蛙没有全部吃完。",
+      waste:"晚上刷短视频约 40 分钟；下午有两次无效的临时沟通。",
+      action:"下周把手机放到另一个房间，上午 9:00-11:00 只做当天第一只青蛙。"
+    };
+    s.nextFrogs = [
+      { item:"完成方案终稿并提交", day:"周一", start:"09:00", duration:"2 小时", standard:"评审通过，无返工" },
+      { item:"完成 3 次运动", day:"周二/周四/周六", start:"19:00", duration:"40 分钟", standard:"每次心率达到有氧区间" },
+      { item:"读完一本书并写 500 字笔记", day:"周日", start:"15:00", duration:"2 小时", standard:"输出一篇可复用的读书笔记" }
+    ];
+    s.schedule = {
+      morning: ["方案终稿", "深度工作", "方案评审", "深度工作", "复盘与计划", "家庭活动", "家庭时间"],
+      afternoon: ["团队沟通", "项目推进", "客户沟通", "项目推进", "周会", "运动", "户外活动"],
+      evening: ["运动", "阅读", "运动", "阅读", "家庭时间", "读书笔记", "周复盘"]
+    };
+    s.goals = [
+      { target:"完成年度核心项目的第一阶段", progress:"本周推进 20%，关键节点按计划" },
+      { target:"每周至少 2 次高质量家庭时间", progress:"已完成 2 次" },
+      { target:"规律作息，每周运动 3 次", progress:"运动 2 次，早睡 4 天" },
+      { target:"每月读完 2 本书", progress:"本周读完半本" },
+      { target:"每月主动联系 2 位朋友", progress:"本周联系 1 位" },
+      { target:"记录支出，控制非必要消费", progress:"已记录，非必要支出下降" }
+    ];
+    s.summary = "本周最大的进步是把高能时间留给了最重要的事；下周继续先吃青蛙，再处理琐事。";
+    return s;
+  }
+
+  function inheritWeekly(src, key){
+    const s = JSON.parse(JSON.stringify(src));
+    s.__v = WEEK_DATA_VERSION;
+    s.weekNo = weekNoText(key);
+    s.dateRange = cnWeekRange(key);
+    s.__blank = false;
+    return s;
   }
 
   function monthlyGridFromGroups(groups){
@@ -971,6 +1319,20 @@
     return null;
   }
 
+  function findPrevWeekRecord(key){
+    for (let i=1;i<=COPY_LOOKBACK_WEEKS;i++){
+      const k = shiftWeekKey(key, -i);
+      try{
+        const raw = localStorage.getItem(LS_WEEK_PREFIX + k);
+        if (!raw) continue;
+        const s = normalizeWeekly(JSON.parse(raw), k);
+        if (isBlankWeekly(s)) continue;
+        return { key:k, state:s };
+      }catch(e){}
+    }
+    return null;
+  }
+
   function inheritState(src, date){
     const s = JSON.parse(JSON.stringify(src));
     s.__v = DATA_VERSION;
@@ -984,7 +1346,7 @@
     return s;
   }
 
-  function load(date){
+  function loadDay(date){
     try{
       const raw = localStorage.getItem(LS_PREFIX + date);
       if (raw) return normalize(JSON.parse(raw));
@@ -993,8 +1355,23 @@
     s.dayWhat = cnDate(date);
     return s;
   }
+  function loadWeek(key){
+    try{
+      const raw = localStorage.getItem(LS_WEEK_PREFIX + key);
+      if (raw) return normalizeWeekly(JSON.parse(raw), key);
+    }catch(e){}
+    return emptyWeeklyState(key);
+  }
+  function loadCurrent(){
+    return mode === "week" ? loadWeek(currentWeek) : loadDay(currentDate);
+  }
+  function currentStorageKey(){
+    return mode === "week" ? LS_WEEK_PREFIX + currentWeek : LS_PREFIX + currentDate;
+  }
   function save(){
-    try{ localStorage.setItem(LS_PREFIX + currentDate, JSON.stringify(state)); }
+    try{
+      localStorage.setItem(currentStorageKey(), JSON.stringify(state));
+    }
     catch(e){ setStatus("保存失败",""); }
   }
   function setStatus(text, cls){ if(!statusEl) return; statusEl.textContent = text; statusEl.className = "status " + (cls||""); }
@@ -1019,6 +1396,7 @@
   };
   const GH_DEFAULT_REPO = "wantianxiangsean/diary-backup";
   const GH_FOLDER = "diary";
+  const GH_WEEK_FOLDER = "weekly";
   const GH_IDLE_MS = 10000;
   let ghAutoTimer = null;
   let ghBusy = false;
@@ -1118,40 +1496,54 @@
     if (sha) body.sha = sha;
     return ghCall("PUT", "/repos/" + cfg.repo + "/contents/" + path, body);
   }
-  async function ghBackupDate(date, opts){
+  function ghKindPrefix(kind){ return kind === "week" ? LS_WEEK_PREFIX : LS_PREFIX; }
+  function ghKindFolder(kind){ return kind === "week" ? GH_WEEK_FOLDER : GH_FOLDER; }
+  function ghMarkKey(kind, key){ return kind === "week" ? "week:" + key : key; }
+  function ghRecordLabel(kind, key){
+    return kind === "week" ? weekDisplay(key) + "周报" : key + " 的日记";
+  }
+  function ghRecordPath(kind, key){ return ghKindFolder(kind) + "/" + key + ".json"; }
+  async function ghBackupRecord(kind, key, opts){
     opts = opts || {};
-    const raw = localStorage.getItem(LS_PREFIX + date);
-    if (!raw) throw new Error(date + " 这一篇还没有内容");
+    const raw = localStorage.getItem(ghKindPrefix(kind) + key);
+    if (!raw) throw new Error(ghRecordLabel(kind, key) + "还没有内容");
     const cfg = ghCfg();
     const marks = ghLoadMarks();
-    if (!opts.force && marks[date] === ghHash(raw)) return "本篇没有变化，跳过";
-    await ghPutFile(cfg, GH_FOLDER + "/" + date + ".json", ghPretty(raw), "备份 " + date + " 的日记");
-    marks[date] = ghHash(raw);
+    const mk = ghMarkKey(kind, key);
+    if (!opts.force && marks[mk] === ghHash(raw)) return "本篇没有变化，跳过";
+    const msg = kind === "week" ? "备份 " + weekDisplay(key) + " 的周报" : "备份 " + key + " 的日记";
+    await ghPutFile(cfg, ghRecordPath(kind, key), ghPretty(raw), msg);
+    marks[mk] = ghHash(raw);
     ghSaveMarks(marks);
-    return "已备份 " + date + "（" + ghTime() + "）";
+    return "已备份" + ghRecordLabel(kind, key) + "（" + ghTime() + "）";
   }
-  function ghLocalDates(){
+  function ghLocalKeys(kind){
     const out = [];
+    const prefix = ghKindPrefix(kind);
     for (let i=0;i<localStorage.length;i++){
       const k = String(localStorage.key(i));
-      if (k.indexOf(LS_PREFIX) === 0) out.push(k.slice(LS_PREFIX.length));
+      if (k.indexOf(prefix) === 0) out.push(k.slice(prefix.length));
     }
     return out.sort();
   }
   async function ghBackupAll(){
-    const dates = ghLocalDates();
-    if (!dates.length) throw new Error("本机还没有任何日记");
+    const jobs = [];
+    ghLocalKeys("day").forEach(function(k){ jobs.push({ kind:"day", key:k }); });
+    ghLocalKeys("week").forEach(function(k){ jobs.push({ kind:"week", key:k }); });
+    if (!jobs.length) throw new Error("本机还没有任何日记或周报");
     const cfg = ghCfg();
     const marks = ghLoadMarks();
-    let ok = 0, fail = 0, firstErr = "";
-    for (let i=0;i<dates.length;i++){
-      const d = dates[i];
-      ghStatus("备份中 " + (i+1) + "/" + dates.length + "：" + d, "");
-      const raw = localStorage.getItem(LS_PREFIX + d);
+    let ok = 0, fail = 0, dayOk = 0, weekOk = 0, firstErr = "";
+    for (let i=0;i<jobs.length;i++){
+      const job = jobs[i];
+      ghStatus("备份中 " + (i+1) + "/" + jobs.length + "：" + ghRecordLabel(job.kind, job.key), "");
+      const raw = localStorage.getItem(ghKindPrefix(job.kind) + job.key);
       try{
-        await ghPutFile(cfg, GH_FOLDER + "/" + d + ".json", ghPretty(raw), "备份 " + d + " 的日记");
-        marks[d] = ghHash(raw);
+        const msg = job.kind === "week" ? "备份 " + weekDisplay(job.key) + " 的周报" : "备份 " + job.key + " 的日记";
+        await ghPutFile(cfg, ghRecordPath(job.kind, job.key), ghPretty(raw), msg);
+        marks[ghMarkKey(job.kind, job.key)] = ghHash(raw);
         ok++;
+        if (job.kind === "week") weekOk++; else dayOk++;
       }catch(err){
         fail++;
         if (!firstErr) firstErr = ghFriendly(err);
@@ -1159,36 +1551,58 @@
     }
     ghSaveMarks(marks);
     if (!ok) throw new Error(firstErr || "全部失败");
-    return "已备份 " + ok + " 天" + (fail ? "，失败 " + fail + " 天（" + firstErr + "）" : "（" + ghTime() + "）");
+    return "已备份 " + ok + " 篇（日记 " + dayOk + " 篇，周报 " + weekOk + " 篇）" +
+           (fail ? "，失败 " + fail + " 篇（" + firstErr + "）" : "（" + ghTime() + "）");
+  }
+  async function ghListBackups(kind){
+    const cfg = ghCfg();
+    let items = [];
+    try{
+      items = await ghCall("GET", "/repos/" + cfg.repo + "/contents/" + ghKindFolder(kind) + ghRef(cfg));
+    }catch(err){
+      if (err.status === 404) return [];
+      throw err;
+    }
+    const re = kind === "week" ? /^(\d{4}-W\d{2})\.json$/ : /^(\d{4}-\d{2}-\d{2})\.json$/;
+    return (Array.isArray(items) ? items : []).filter(function(it){
+      return it.type === "file" && re.test(it.name);
+    }).map(function(it){
+      return { kind:kind, key:(re.exec(it.name) || [])[1], path:it.path, name:it.name };
+    });
   }
   async function ghRestoreAll(){
     const cfg = ghCfg();
-    const items = await ghCall("GET", "/repos/" + cfg.repo + "/contents/" + GH_FOLDER + ghRef(cfg));
-    const files = (Array.isArray(items) ? items : []).filter(function(it){
-      return it.type === "file" && /^\d{4}-\d{2}-\d{2}\.json$/.test(it.name);
-    });
-    if (!files.length) throw new Error("云端 " + GH_FOLDER + "/ 里还没有备份文件");
-    let added = 0, replaced = 0, skipped = 0;
+    const dayFiles = await ghListBackups("day");
+    const weekFiles = await ghListBackups("week");
+    const files = dayFiles.concat(weekFiles);
+    if (!files.length) throw new Error("云端 " + GH_FOLDER + "/ 和 " + GH_WEEK_FOLDER + "/ 里还没有备份文件");
+    let added = 0, replaced = 0, skipped = 0, dayAdded = 0, weekAdded = 0;
     for (let i=0;i<files.length;i++){
       const f = files[i];
-      const date = f.name.replace(/\.json$/, "");
-      ghStatus("恢复中 " + (i+1) + "/" + files.length + "：" + date, "");
-      const exists = !!localStorage.getItem(LS_PREFIX + date);
+      ghStatus("恢复中 " + (i+1) + "/" + files.length + "：" + ghRecordLabel(f.kind, f.key), "");
+      const storageKey = ghKindPrefix(f.kind) + f.key;
+      const exists = !!localStorage.getItem(storageKey);
       if (exists && !cfg.overwrite){ skipped++; continue; }
       const got = await ghCall("GET", "/repos/" + cfg.repo + "/contents/" + f.path + ghRef(cfg));
       const text = b64decodeUtf8(got && got.content);
       const obj = JSON.parse(text);
-      localStorage.setItem(LS_PREFIX + date, JSON.stringify(normalize(obj)));
-      if (exists) replaced++; else added++;
+      const val = f.kind === "week" ? normalizeWeekly(obj, f.key) : normalize(obj);
+      localStorage.setItem(storageKey, JSON.stringify(val));
+      if (exists) replaced++;
+      else {
+        added++;
+        if (f.kind === "week") weekAdded++; else dayAdded++;
+      }
     }
     if (added || replaced){
-      state = load(currentDate);
+      state = loadCurrent();
       sel = null;
       render();
       resetHistory();
     }
-    return "恢复完成：新增 " + added + " 天" + (replaced ? "，覆盖 " + replaced + " 天" : "") +
-           (skipped ? "，跳过本机已有 " + skipped + " 天" : "");
+    return "恢复完成：新增 " + added + " 篇（日记 " + dayAdded + " 篇，周报 " + weekAdded + " 篇）" +
+           (replaced ? "，覆盖 " + replaced + " 篇" : "") +
+           (skipped ? "，跳过本机已有 " + skipped + " 篇" : "");
   }
   function ghMaybeAuto(){
     const cfg = ghCfg();
@@ -1199,13 +1613,15 @@
   function ghAutoBackupNow(){
     const cfg = ghCfg();
     if (!cfg.auto || !cfg.token || !cfg.repo) return;
-    const raw = localStorage.getItem(LS_PREFIX + currentDate);
+    const kind = mode;
+    const key = kind === "week" ? currentWeek : currentDate;
+    const raw = localStorage.getItem(ghKindPrefix(kind) + key);
     if (!raw) return;
-    if (ghLoadMarks()[currentDate] === ghHash(raw)) return;
+    if (ghLoadMarks()[ghMarkKey(kind, key)] === ghHash(raw)) return;
     if (ghBusy){ ghMaybeAuto(); return; }
     ghBusy = true;
     ghStatus("自动备份中…", "");
-    ghBackupDate(currentDate, {force:true}).then(function(msg){
+    ghBackupRecord(kind, key, {force:true}).then(function(msg){
       ghBusy = false;
       ghStatus(msg, "ok");
     }).catch(function(err){
@@ -1278,9 +1694,11 @@
       if (e) e.addEventListener("change", function(){ persist(); if (e.checked) ghMaybeAuto(); });
     });
     ghEl("ghNow").addEventListener("click", function(){
-      ghRun(ghBackupDate(currentDate, {force:true}), "备份本篇");
+      const kind = mode;
+      const key = kind === "week" ? currentWeek : currentDate;
+      ghRun(ghBackupRecord(kind, key, {force:true}), "备份本篇");
     });
-    ghEl("ghAll").addEventListener("click", function(){ ghRun(ghBackupAll(), "备份全部日期"); });
+    ghEl("ghAll").addEventListener("click", function(){ ghRun(ghBackupAll(), "备份全部"); });
     ghEl("ghRestore").addEventListener("click", function(){ ghRun(ghRestoreAll(), "从云端恢复"); });
     ghEl("ghForget").addEventListener("click", function(){
       try{ localStorage.removeItem(GH_KEYS.token); }catch(e){}
@@ -1298,6 +1716,7 @@
       if (!o) return;
     }
     o[p[p.length-1]] = val;
+    if (state && state.__blank) state.__blank = false;
   }
 
   /* ============================================================
@@ -1408,6 +1827,7 @@
      整页渲染
      ============================================================ */
   function render(){
+    if (mode === "week"){ renderWeekly(); return; }
     appEl.innerHTML =
       '<div class="motto">' + ed("motto", state.motto, "写下今天的座右铭…") + '</div>' +
 
@@ -1506,6 +1926,176 @@
   }
 
   /* ============================================================
+     周报整页渲染
+     ============================================================ */
+  function wkTableHtml(key, cls, rows){
+    const meta = WK_TABLE_META[key];
+    const lay = (state.layout && state.layout[key]) || { cols:meta.cols, rows:[] };
+    const cols = (Array.isArray(lay.cols) && lay.cols.length === meta.cols.length) ? lay.cols : meta.cols;
+    const heights = Array.isArray(lay.rows) ? lay.rows : [];
+    const colgroup = "<colgroup>" + cols.map(function(w){
+      return '<col style="width:' + w + '%">';
+    }).join("") + "</colgroup>";
+    const trs = rows.map(function(row, i){
+      const h = heights[i];
+      return (typeof h === "number" && h > 0)
+        ? row.replace("<tr>", '<tr style="height:' + h + 'px">')
+        : row;
+    }).join("");
+    return '<div class="wk-tblwrap" data-wk-table="' + key + '">' +
+      '<div class="tbl-bar">' +
+        '<span class="tbl-hint" hidden>拖动边框调整列宽/行高，双击行把手复位</span>' +
+        '<button type="button" class="tbl-toggle" data-wk-toggle="' + key + '">表格编辑</button>' +
+      '</div>' +
+      '<table class="doc wk-table ' + cls + '">' + colgroup + '<tbody>' + trs + '</tbody></table>' +
+      '<div class="tbl-overlay"></div>' +
+    '</div>';
+  }
+
+  function renderWeekly(){
+    const frogRows = state.frogs.map(function(r, i){
+      return '<tr>' +
+        '<td class="wk-fix">青蛙' + (i + 1) + '</td>' +
+        '<td>' + ed("frogs." + i + ".plan", r.plan, "计划要事…") + '</td>' +
+        '<td>' + ed("frogs." + i + ".actual", r.actual, "实际完成情况…") + '</td>' +
+        '<td>' + ed("frogs." + i + ".pct", r.pct, "80", { single:true }) + '</td>' +
+        '<td>' + ed("frogs." + i + ".reason", r.reason, "未完成原因…") + '</td>' +
+        '<td>' + ed("frogs." + i + ".rescue", r.rescue, "明日/下周补救…") + '</td>' +
+      '</tr>';
+    });
+
+    const colorRows = state.colors.map(function(r, i){
+      const c = WEEK_COLORS[i];
+      return '<tr>' +
+        '<td class="wk-dim ' + c.cls + '">' + esc(c.label) + '</td>' +
+        '<td>' + ed("colors." + i + ".plan", r.plan, "本周计划…") + '</td>' +
+        '<td>' + ed("colors." + i + ".actual", r.actual, "实际完成…") + '</td>' +
+        '<td>' + ed("colors." + i + ".invest", r.invest, "时间/次数…") + '</td>' +
+        '<td>' + ed("colors." + i + ".reflect", r.reflect, "反思…") + '</td>' +
+      '</tr>';
+    });
+
+    const nextRows = state.nextFrogs.map(function(r, i){
+      return '<tr>' +
+        '<td class="wk-fix">青蛙' + (i + 1) + '</td>' +
+        '<td>' + ed("nextFrogs." + i + ".item", r.item, "下周要事…") + '</td>' +
+        '<td>' + ed("nextFrogs." + i + ".day", r.day, "周几", { single:true }) + '</td>' +
+        '<td>' + ed("nextFrogs." + i + ".start", r.start, "09:00", { single:true }) + '</td>' +
+        '<td>' + ed("nextFrogs." + i + ".duration", r.duration, "2 小时", { single:true }) + '</td>' +
+        '<td>' + ed("nextFrogs." + i + ".standard", r.standard, "结果标准…") + '</td>' +
+      '</tr>';
+    });
+
+    const dayHead = WEEK_DAYS.map(function(d){ return '<td class="t-head">' + d + '</td>'; }).join("");
+    const slotRows = WEEK_SLOTS.map(function(slot){
+      const cells = state.schedule[slot.key].map(function(v, i){
+        return '<td>' + ed("schedule." + slot.key + "." + i, v, "安排…") + '</td>';
+      }).join("");
+      return '<tr><td class="wk-fix">' + slot.label + '</td>' + cells + '</tr>';
+    });
+
+    const goalRows = state.goals.map(function(r, i){
+      return '<tr>' +
+        '<td class="wk-fix">' + esc(WEEK_GOALS[i]) + '</td>' +
+        '<td>' + ed("goals." + i + ".target", r.target, "本月/本年目标…") + '</td>' +
+        '<td>' + ed("goals." + i + ".progress", r.progress, "本周推进情况…") + '</td>' +
+      '</tr>';
+    });
+
+    const frogHead = '<tr>' +
+      '<td class="t-head">青蛙</td><td class="t-head">计划要事</td><td class="t-head">实际完成情况</td>' +
+      '<td class="t-head">完成度(%)</td><td class="t-head">未完成原因</td><td class="t-head">明日/下周补救</td>' +
+    '</tr>';
+    const colorHead = '<tr>' +
+      '<td class="t-head">维度</td><td class="t-head">本周计划</td><td class="t-head">实际完成</td>' +
+      '<td class="t-head">投入时间/次数</td><td class="t-head">反思</td>' +
+    '</tr>';
+    const planHead = '<tr>' +
+      '<td class="t-head">青蛙</td><td class="t-head">下周要事</td><td class="t-head">安排到哪天</td>' +
+      '<td class="t-head">开始时间</td><td class="t-head">时长</td><td class="t-head">结果标准</td>' +
+    '</tr>';
+    const scheduleHead = '<tr><td class="t-head wk-fix"></td>' + dayHead + '</tr>';
+    const goalHead = '<tr><td class="t-head">维度</td><td class="t-head">本月/本年目标</td><td class="t-head">本周推进情况</td></tr>';
+
+    appEl.innerHTML =
+      '<div class="week-page">' +
+        '<div class="wk-title">周报（高能要事）</div>' +
+        '<div class="wk-meta">' +
+          '<label><span>周次：</span>' + ed("weekNo", state.weekNo, weekNoText(currentWeek), { single:true }) + '</label>' +
+          '<label><span>日期：</span>' + ed("dateRange", state.dateRange, cnWeekRange(currentWeek), { single:true }) + '</label>' +
+        '</div>' +
+
+        '<section class="sec">' +
+          '<div class="banner wk-red">一、本周三只青蛙（高能要事 · 先吃青蛙）</div>' +
+          '<div class="sec-body">' +
+            wkTableHtml("frogs", "frogs", [frogHead].concat(frogRows)) +
+          '</div>' +
+        '</section>' +
+
+        '<section class="sec">' +
+          '<div class="banner">二、本周五色日程回顾（工作·健康·学习·家庭人际·个人）</div>' +
+          '<div class="sec-body">' +
+            wkTableHtml("colors", "colors", [colorHead].concat(colorRows)) +
+          '</div>' +
+        '</section>' +
+
+        '<section class="sec">' +
+          '<div class="banner wk-yellow">三、本周反思与改进（黄色思考区）</div>' +
+          '<div class="sec-body">' +
+            '<div class="wk-reflect">' +
+              '<div class="wk-reflect-row"><div class="wk-reflect-q">① 本周做得好的 3 件事（亮点）</div>' +
+                '<div class="wk-reflect-a">' + ed("reflect.good", state.reflect.good, "写下本周的高光时刻…") + '</div></div>' +
+              '<div class="wk-reflect-row"><div class="wk-reflect-q">② 本周不足 / 被打断最多的事（青蛙被吃掉了吗？）</div>' +
+                '<div class="wk-reflect-a">' + ed("reflect.bad", state.reflect.bad, "发生了什么？为什么会这样？") + '</div></div>' +
+              '<div class="wk-reflect-row"><div class="wk-reflect-q">③ 时间浪费在哪（刷手机 / 会议 / 无效社交）</div>' +
+                '<div class="wk-reflect-a">' + ed("reflect.waste", state.reflect.waste, "把时间黑洞找出来…") + '</div></div>' +
+              '<div class="wk-reflect-row"><div class="wk-reflect-q">④ 下周要刻意改进的 1 个动作</div>' +
+                '<div class="wk-reflect-a">' + ed("reflect.action", state.reflect.action, "只写一个具体动作…") + '</div></div>' +
+            '</div>' +
+          '</div>' +
+        '</section>' +
+
+        '<section class="sec">' +
+          '<div class="banner wk-red">四、下周三只青蛙（提前锁定下周最重要 3 件事）</div>' +
+          '<div class="sec-body">' +
+            wkTableHtml("plan", "plan", [planHead].concat(nextRows)) +
+          '</div>' +
+        '</section>' +
+
+        '<section class="sec">' +
+          '<div class="banner">五、下周日程安排（固定日程 + 弹性事件）</div>' +
+          '<div class="sec-body">' +
+            wkTableHtml("schedule", "schedule", [scheduleHead].concat(slotRows)) +
+          '</div>' +
+        '</section>' +
+
+        '<section class="sec">' +
+          '<div class="banner wk-green">六、月度 / 年度目标检视（是否在往高空方向走）</div>' +
+          '<div class="sec-body">' +
+            wkTableHtml("goals", "goals", [goalHead].concat(goalRows)) +
+          '</div>' +
+        '</section>' +
+
+        '<section class="sec">' +
+          '<div class="banner">本周一句话总结</div>' +
+          '<div class="sec-body">' +
+            '<div class="wk-summary"><div class="wk-summary-label">用一句话概括这一周</div>' +
+              '<div class="wk-summary-body">' + ed("summary", state.summary, "写下本周最重要的一句话…") + '</div></div>' +
+          '</div>' +
+        '</section>' +
+
+        '<p class="wk-empty-note">本周报内容自动保存在本机；「备份」会把周报同步到云端仓库的 weekly/ 目录。</p>' +
+      '</div>';
+
+    bind();
+    if (selectMode) applySelectMode();
+    else {
+      applyWeeklyEditMode();
+      hideColorBar();
+    }
+  }
+
+  /* ============================================================
      表格编辑模式
      ============================================================ */
   function applyEditMode(){
@@ -1526,6 +2116,142 @@
       }
     });
     updateToolbar();
+  }
+
+  function applyWeeklyEditMode(){
+    appEl.querySelectorAll(".wk-tblwrap").forEach(function(wrap){
+      const key = wrap.dataset.wkTable;
+      const on = !!editingTables[key];
+      wrap.classList.toggle("editing", on);
+      const btn = wrap.querySelector(".tbl-toggle");
+      if (btn){
+        btn.classList.toggle("on", on);
+        btn.textContent = on ? "完成编辑" : "表格编辑";
+      }
+      const hint = wrap.querySelector(".tbl-hint");
+      if (hint) hint.hidden = !on;
+      if (on){
+        wrap.querySelectorAll(".ed").forEach(function(el){ el.setAttribute("contenteditable","false"); });
+        buildWeeklyHandles(wrap, key);
+      }else{
+        const ov = wrap.querySelector(".tbl-overlay");
+        if (ov) ov.innerHTML = "";
+      }
+    });
+  }
+
+  function buildWeeklyHandles(wrap, key){
+    const table = wrap.querySelector("table.doc");
+    const ov = wrap.querySelector(".tbl-overlay");
+    if (!table || !ov) return;
+    ov.innerHTML = "";
+    const lay = state.layout && state.layout[key];
+    if (!lay) return;
+
+    const wr = wrap.getBoundingClientRect();
+    const tr = table.getBoundingClientRect();
+    ov.style.left = (tr.left - wr.left) + "px";
+    ov.style.top = (tr.top - wr.top) + "px";
+    ov.style.width = tr.width + "px";
+    ov.style.height = tr.height + "px";
+
+    let acc = 0;
+    lay.cols.forEach(function(w, i){
+      acc += w;
+      if (i >= lay.cols.length - 1) return;
+      const h = document.createElement("div");
+      h.className = "chandle";
+      h.dataset.col = String(i);
+      h.style.left = ((acc / 100) * tr.width) + "px";
+      ov.appendChild(h);
+      wireWeeklyColHandle(h, i, key, wrap, table);
+    });
+
+    const trs = Array.prototype.slice.call(table.querySelectorAll("tr"));
+    trs.forEach(function(rowEl, i){
+      if (i >= trs.length - 1) return;
+      const rr = rowEl.getBoundingClientRect();
+      const h = document.createElement("div");
+      h.className = "rhandle";
+      h.dataset.row = String(i);
+      h.style.top = (rr.bottom - tr.top) + "px";
+      ov.appendChild(h);
+      wireWeeklyRowHandle(h, i, rowEl, key, wrap);
+    });
+  }
+
+  function wireWeeklyColHandle(h, i, key, wrap, table){
+    h.addEventListener("pointerdown", function(e){
+      e.preventDefault(); e.stopPropagation();
+      const lay = state.layout[key];
+      if (!lay) return;
+      const j = (i + 1 < lay.cols.length) ? i + 1 : i - 1;
+      if (j < 0) return;
+      const tableW = table.getBoundingClientRect().width || 1;
+      const startX = e.clientX;
+      const a0 = lay.cols[i], b0 = lay.cols[j];
+      const MIN = 5;
+      const colEls = table.querySelectorAll("col");
+      const onMove = function(ev){
+        const d = ((ev.clientX - startX) / tableW) * 100;
+        let a = a0 + d, b = b0 - d;
+        if (a < MIN){ b -= (MIN - a); a = MIN; }
+        if (b < MIN){ a -= (MIN - b); b = MIN; }
+        lay.cols[i] = a; lay.cols[j] = b;
+        if (colEls[i]) colEls[i].style.width = a + "%";
+        if (colEls[j]) colEls[j].style.width = b + "%";
+        buildWeeklyHandles(wrap, key);
+      };
+      const onUp = function(){
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+        window.removeEventListener("pointercancel", onUp);
+        lay.cols = normalizeCols(lay.cols);
+        Array.prototype.forEach.call(colEls, function(el, idx){
+          if (el) el.style.width = lay.cols[idx] + "%";
+        });
+        scheduleSave();
+        buildWeeklyHandles(wrap, key);
+      };
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+      window.addEventListener("pointercancel", onUp);
+    });
+  }
+
+  function wireWeeklyRowHandle(h, i, rowEl, key, wrap){
+    h.addEventListener("pointerdown", function(e){
+      e.preventDefault(); e.stopPropagation();
+      const lay = state.layout[key];
+      if (!lay) return;
+      const startY = e.clientY;
+      const h0 = rowEl.getBoundingClientRect().height;
+      const onMove = function(ev){
+        const val = Math.round(Math.max(24, Math.min(400, h0 + (ev.clientY - startY))));
+        rowEl.style.height = val + "px";
+        lay.rows[i] = val;
+        buildWeeklyHandles(wrap, key);
+      };
+      const onUp = function(){
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+        window.removeEventListener("pointercancel", onUp);
+        scheduleSave();
+        buildWeeklyHandles(wrap, key);
+      };
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+      window.addEventListener("pointercancel", onUp);
+    });
+    h.addEventListener("dblclick", function(e){
+      e.preventDefault(); e.stopPropagation();
+      const lay = state.layout[key];
+      if (!lay) return;
+      lay.rows[i] = null;
+      rowEl.style.height = "";
+      scheduleSave();
+      render();
+    });
   }
 
   /* 选择模式：关掉所有编辑能力，整页变成可框选的文本 */
@@ -2042,6 +2768,7 @@
           copyNotice = null;
           state = emptyState();
           state.dayWhat = cnDate(currentDate);
+          snapshotNow();
           save(); setStatus("已保存","saved");
           render();
           toast("已改用空白");
@@ -2053,6 +2780,13 @@
         const key = btn.dataset.tblToggle;
         editingTables[key] = !editingTables[key];
         sel = null;
+        render();
+      });
+    });
+    appEl.querySelectorAll("[data-wk-toggle]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        const key = btn.dataset.wkToggle;
+        editingTables[key] = !editingTables[key];
         render();
       });
     });
@@ -2198,6 +2932,66 @@
     });
     return L.join("\n") + "\n";
   }
+
+  function weeklyToMarkdown(){
+    const L = [];
+    const t = function(v){ return htmlToText(v); };
+    const line = function(arr){ return "| " + arr.map(cellMd).join(" | ") + " |"; };
+    L.push("# 周报（高能要事）", "");
+    L.push("- 周次：" + (t(state.weekNo).trim() || weekNoText(currentWeek)));
+    L.push("- 日期：" + (t(state.dateRange).trim() || cnWeekRange(currentWeek)));
+
+    L.push("", "## 一、本周三只青蛙（高能要事 · 先吃青蛙）", "");
+    L.push(line(["青蛙","计划要事","实际完成情况","完成度(%)","未完成原因","明日/下周补救"]));
+    L.push(line(["---","---","---","---","---","---"]));
+    state.frogs.forEach(function(r, i){
+      L.push(line(["青蛙" + (i + 1), t(r.plan), t(r.actual), t(r.pct), t(r.reason), t(r.rescue)]));
+    });
+
+    L.push("", "## 二、本周五色日程回顾", "");
+    L.push(line(["维度","本周计划","实际完成","投入时间/次数","反思"]));
+    L.push(line(["---","---","---","---","---"]));
+    state.colors.forEach(function(r, i){
+      L.push(line([WEEK_COLORS[i].label, t(r.plan), t(r.actual), t(r.invest), t(r.reflect)]));
+    });
+
+    L.push("", "## 三、本周反思与改进", "");
+    const prompts = [
+      ["① 本周做得好的 3 件事（亮点）", "good"],
+      ["② 本周不足 / 被打断最多的事", "bad"],
+      ["③ 时间浪费在哪", "waste"],
+      ["④ 下周要刻意改进的 1 个动作", "action"]
+    ];
+    prompts.forEach(function(p){
+      L.push("**" + p[0] + "**", "");
+      L.push(t(state.reflect[p[1]]).trim() || "—", "");
+    });
+
+    L.push("## 四、下周三只青蛙", "");
+    L.push(line(["青蛙","下周要事","安排到哪天","开始时间","时长","结果标准"]));
+    L.push(line(["---","---","---","---","---","---"]));
+    state.nextFrogs.forEach(function(r, i){
+      L.push(line(["青蛙" + (i + 1), t(r.item), t(r.day), t(r.start), t(r.duration), t(r.standard)]));
+    });
+
+    L.push("", "## 五、下周日程安排", "");
+    L.push(line([""].concat(WEEK_DAYS)));
+    L.push(line(["---"].concat(WEEK_DAYS.map(function(){ return "---"; }))));
+    WEEK_SLOTS.forEach(function(slot){
+      L.push(line([slot.label].concat(state.schedule[slot.key].map(t))));
+    });
+
+    L.push("", "## 六、月度 / 年度目标检视", "");
+    L.push(line(["维度","本月/本年目标","本周推进情况"]));
+    L.push(line(["---","---","---"]));
+    state.goals.forEach(function(r, i){
+      L.push(line([WEEK_GOALS[i], t(r.target), t(r.progress)]));
+    });
+
+    L.push("", "## 本周一句话总结", "", t(state.summary).trim() || "—");
+    return L.join("\n") + "\n";
+  }
+
   function sec(L, title, val){
     L.push("", "## " + title);
     if (val && val.trim()) L.push("", val.trim());
@@ -2213,13 +3007,64 @@
     toast._t = setTimeout(function(){ t.classList.remove("show"); }, 1700);
   }
   function refreshChrome(){
+    const isWeek = mode === "week";
+    const brand = document.getElementById("brand");
+    if (brand) brand.textContent = isWeek ? "每周周报" : "每日日记";
+    document.querySelectorAll(".day-only").forEach(function(el){ el.hidden = isWeek; });
+    document.querySelectorAll(".week-only").forEach(function(el){ el.hidden = !isWeek; });
+    const md = document.getElementById("modeDay"), mw = document.getElementById("modeWeek");
+    if (md) md.classList.toggle("on", !isWeek);
+    if (mw) mw.classList.toggle("on", isWeek);
+    const cp = document.getElementById("copyPrev");
+    if (cp){
+      cp.textContent = isWeek ? "复制上周" : "复制昨天";
+      cp.title = isWeek ? "把最近一份填写过的周报复制到本周" : "把最近一份填写过的日记复制到本篇";
+    }
+    const clr = document.getElementById("clearDay");
+    if (clr) clr.title = isWeek ? "清空这一周" : "清空这一篇";
     document.getElementById("datePick").value = currentDate;
-    document.title = currentDate + " 日记";
+    const wp = document.getElementById("weekPick");
+    if (wp) wp.value = currentWeek;
+    document.title = isWeek ? weekDisplay(currentWeek) + " 周报" : currentDate + " 日记";
   }
   function goto(date){
     save();
+    mode = "day";
     currentDate = date;
-    state = load(date);
+    weekPinned = false;
+    state = loadDay(date);
+    sel = null; dragging = null;
+    editingTables = { monthly:false, weekly:false };
+    refreshChrome();
+    render();
+    resetHistory();
+    setStatus(state.__blank ? "" : "已保存", state.__blank ? "" : "saved");
+  }
+  function gotoWeek(key){
+    const k = /^\d{4}-W\d{2}$/.test(String(key || "")) ? key : currentWeek;
+    save();
+    mode = "week";
+    currentWeek = k;
+    weekPinned = true;
+    state = loadWeek(k);
+    sel = null; dragging = null;
+    editingTables = { monthly:false, weekly:false };
+    refreshChrome();
+    render();
+    resetHistory();
+    setStatus(state.__blank ? "" : "已保存", state.__blank ? "" : "saved");
+  }
+  function switchMode(next){
+    if (next === mode) return;
+    save();
+    if (next === "week"){
+      if (!weekPinned) currentWeek = weekKeyFromDate(currentDate);
+      mode = "week";
+      state = loadWeek(currentWeek);
+    }else{
+      mode = "day";
+      state = loadDay(currentDate);
+    }
     sel = null; dragging = null;
     editingTables = { monthly:false, weekly:false };
     refreshChrome();
@@ -2228,11 +3073,12 @@
     setStatus(state.__blank ? "" : "已保存", state.__blank ? "" : "saved");
   }
   function downloadMd(){
-    const md = toMarkdown();
+    const isWeek = mode === "week";
+    const md = isWeek ? weeklyToMarkdown() : toMarkdown();
     const blob = new Blob([md], {type:"text/markdown;charset=utf-8"});
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = currentDate + "-日记.md";
+    a.download = isWeek ? currentWeek + "-周报.md" : currentDate + "-日记.md";
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1500);
     toast("已导出 " + a.download);
@@ -2252,7 +3098,7 @@
       return false;
     })();
 
-    state = load(currentDate);
+    state = loadDay(currentDate);
     if (!hasAny && state.__blank){ state = templateState(); save(); }
 
     initColorBar();
@@ -2265,33 +3111,59 @@
     document.getElementById("prevDay").addEventListener("click", function(){ goto(shiftDate(currentDate,-1)); });
     document.getElementById("nextDay").addEventListener("click", function(){ goto(shiftDate(currentDate, 1)); });
     document.getElementById("todayBtn").addEventListener("click", function(){ goto(todayISO()); });
+    document.getElementById("modeDay").addEventListener("click", function(){ switchMode("day"); });
+    document.getElementById("modeWeek").addEventListener("click", function(){ switchMode("week"); });
+    document.getElementById("prevWeek").addEventListener("click", function(){ gotoWeek(shiftWeekKey(currentWeek, -1)); });
+    document.getElementById("nextWeek").addEventListener("click", function(){ gotoWeek(shiftWeekKey(currentWeek, 1)); });
+    document.getElementById("thisWeekBtn").addEventListener("click", function(){ gotoWeek(todayWeekKey()); });
+    document.getElementById("weekPick").addEventListener("change", function(e){ if (e.target.value) gotoWeek(e.target.value); });
     document.getElementById("copyPrev").addEventListener("click", function(){
+      if (mode === "week"){
+        const prev = findPrevWeekRecord(currentWeek);
+        if (!prev){ toast("往前 52 周内没有填写过的周报"); return; }
+        if (!isBlankWeekly(state) && !confirm("用 " + weekDisplay(prev.key) + " 的周报内容覆盖当前这一周？")) return;
+        snapshotNow();
+        state = inheritWeekly(prev.state, currentWeek);
+        snapshotNow();
+        save(); setStatus("已保存","saved");
+        render();
+        toast("已填入 " + weekDisplay(prev.key) + " 的周报内容");
+        return;
+      }
       const prev = findPrevRecord(currentDate);
       if (!prev){ toast("往前 30 天内没有填写过的记录"); return; }
       if (!isBlankRecord(state) && !confirm("用 " + cnDate(prev.date) + " 的内容覆盖当前这一篇？")) return;
       snapshotNow();
       state = inheritState(prev.state, currentDate);
+      snapshotNow();
       save(); setStatus("已保存","saved");
       render();
       toast("已填入 " + cnDate(prev.date) + " 的内容");
     });
 
     document.getElementById("fillTpl").addEventListener("click", function(){
-      if (!confirm("用示例内容覆盖当前这一篇？当前内容会被替换。")) return;
+      if (!confirm("用示例内容覆盖" + (mode === "week" ? "当前这一周" : "当前这一篇") + "？当前内容会被替换。")) return;
       snapshotNow();
-      state = templateState();
+      state = mode === "week" ? weeklyTemplateState(currentWeek) : templateState();
+      snapshotNow();
       sel = null;
       render(); save(); setStatus("已保存","saved");
       toast("已载入示例内容");
     });
     document.getElementById("clearDay").addEventListener("click", function(){
-      if (!confirm("清空 " + currentDate + " 这一篇的全部内容？")) return;
+      const what = mode === "week" ? weekDisplay(currentWeek) + " 这一周" : currentDate + " 这一篇";
+      if (!confirm("清空 " + what + "的全部内容？")) return;
       snapshotNow();
-      state = emptyState();
-      state.dayWhat = cnDate(currentDate);
+      if (mode === "week"){
+        state = emptyWeeklyState(currentWeek);
+      }else{
+        state = emptyState();
+        state.dayWhat = cnDate(currentDate);
+      }
+      snapshotNow();
       sel = null;
       render(); save(); setStatus("已保存","saved");
-      toast("已清空本篇");
+      toast(mode === "week" ? "已清空本周" : "已清空本篇");
     });
     document.getElementById("exportMd").addEventListener("click", downloadMd);
     document.getElementById("undoBtn").addEventListener("click", doUndo);
@@ -2323,6 +3195,7 @@
     });
     window.addEventListener("afterprint", function(){
       appEl.querySelectorAll(".tblwrap.editing").forEach(function(w){ buildHandles(w, w.dataset.table); });
+      appEl.querySelectorAll(".wk-tblwrap.editing").forEach(function(w){ buildWeeklyHandles(w, w.dataset.wkTable); });
       paintSel();
       updateToolbar();
     });
@@ -2337,6 +3210,7 @@
       clearTimeout(rzTimer);
       rzTimer = setTimeout(function(){
         appEl.querySelectorAll(".tblwrap.editing").forEach(function(w){ buildHandles(w, w.dataset.table); });
+        appEl.querySelectorAll(".wk-tblwrap.editing").forEach(function(w){ buildWeeklyHandles(w, w.dataset.wkTable); });
         positionToolbar();
       }, 120);
     });
