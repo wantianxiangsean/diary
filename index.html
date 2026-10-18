@@ -59,6 +59,10 @@
     font:inherit;font-size:15.5px;padding:4px 8px;border:1px solid #cfcfcf;
     border-radius:6px;background:#fff;color:#222;
   }
+  .topbar input[type="month"]{
+    font:inherit;font-size:15.5px;padding:4px 8px;border:1px solid #cfcfcf;
+    border-radius:6px;background:#fff;color:#222;
+  }
   .topbar [hidden]{display:none !important}
   .modetabs{display:inline-flex;align-items:center;gap:0;margin-right:3px;border:1px solid #cfcfcf;border-radius:7px;overflow:hidden;background:#f7f7f7}
   .modetabs button{
@@ -355,6 +359,10 @@
     text-align:center;vertical-align:middle;font-weight:700;color:#3f3f3f;
     background:#f6f7f8;
   }
+  .wk-table td.wk-label-left{
+    text-align:left;vertical-align:middle;font-weight:700;color:#3f3f3f;
+    background:#f6f7f8;line-height:1.4;
+  }
   .wk-table td.wk-dim{
     vertical-align:middle;text-align:center;font-weight:700;color:#fff;
     font-size:15.5px;padding:6px 4px;line-height:1.35;
@@ -434,6 +442,7 @@
   <div class="modetabs" role="group" aria-label="记录类型">
     <button type="button" id="modeDay" class="on">日记</button>
     <button type="button" id="modeWeek">周报</button>
+    <button type="button" id="modeMonth">月报</button>
   </div>
   <button class="icon day-only" id="prevDay" title="前一天">‹</button>
   <input class="day-only" type="date" id="datePick">
@@ -443,6 +452,10 @@
   <input class="week-only" type="week" id="weekPick" hidden>
   <button class="icon week-only" id="nextWeek" title="下一周" hidden>›</button>
   <button class="week-only" id="thisWeekBtn" hidden>本周</button>
+  <button class="icon month-only" id="prevMonth" title="上一月" hidden>‹</button>
+  <input class="month-only" type="month" id="monthPick" hidden>
+  <button class="icon month-only" id="nextMonth" title="下一月" hidden>›</button>
+  <button class="month-only" id="thisMonthBtn" hidden>本月</button>
   <button class="icon" id="undoBtn" title="上一步（Ctrl+Z）">↶</button>
   <button class="icon" id="redoBtn" title="下一步（Ctrl+Y）">↷</button>
   <span class="spacer"></span>
@@ -477,12 +490,12 @@
     <button id="ghForget">清除本机 token</button>
     <button id="ghClose">关闭</button>
   </div>
-  <p class="ghnote">日记会写进 <code>diary/日期.json</code>，周报会写进 <code>weekly/周.json</code>（如 <code>2026-W42.json</code>）。<strong>请用私有仓库</strong>——用公开仓库等于把日记公开。token 只保存在本机浏览器，建议只给它该仓库的 Contents 读写权限。</p>
+  <p class="ghnote">日记会写进 <code>diary/日期.json</code>，周报会写进 <code>weekly/周.json</code>（如 <code>2026-W42.json</code>），月报会写进 <code>monthly/月.json</code>（如 <code>2026-10.json</code>）。<strong>请用私有仓库</strong>——用公开仓库等于把日记公开。token 只保存在本机浏览器，建议只给它该仓库的 Contents 读写权限。</p>
 </div>
 
 <div class="page">
   <div id="app"></div>
-  <p class="foot">内容自动保存在本机浏览器中，日记按日期、周报按周分别存档 · Ctrl/⌘ + S 立即保存</p>
+  <p class="foot">内容自动保存在本机浏览器中，日记按日期、周报按周、月报按月分别存档 · Ctrl/⌘ + S 立即保存</p>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -515,8 +528,10 @@
   const D_COUNT = 5;
   const DATA_VERSION = 3;
   const WEEK_DATA_VERSION = 1;
+  const MONTH_DATA_VERSION = 1;
   const COPY_LOOKBACK_DAYS = 30;
   const COPY_LOOKBACK_WEEKS = 52;
+  const COPY_LOOKBACK_MONTHS = 12;
 
   const WEEK_COLORS = [
     { key:"blue",   label:"蓝色·工作",                 cls:"c-blue" },
@@ -539,6 +554,24 @@
     schedule:{ cols:[10,12.857,12.857,12.857,12.857,12.857,12.857,12.857], rows:[50,60,60,60] },
     goals:{ cols:[20,40,40], rows:[50,50,50,50,50,50,50] }
   };
+  const MONTH_FOCUS = [
+    "健康（睡眠/运动/体重/精力）",
+    "家庭（陪伴/活动/沟通）",
+    "效能（要事/时间/拖延）",
+    "财富（收入/支出/储蓄）",
+    "休闲（放松/娱乐/出游）",
+    "觉察（情绪/压力/心态）",
+    "社交（链接/人脉/维护）",
+    "成长（读书/课程/技能）"
+  ];
+  const MONTH_TABLE_META = {
+    mAnnual:{ cols:[32,68], rows:[50,64,64,64] },
+    mFocus:{ cols:[32,68], rows:[50,64,64,64,64,64,64,64,64] },
+    mFrogs:{ cols:[10,90], rows:[50,64,64,64] },
+    mLessons:{ cols:[34,66], rows:[50,64,64,64] },
+    mNext:{ cols:[10,90], rows:[50,64,64,64] }
+  };
+  const REPORT_TABLE_META = Object.assign({}, WK_TABLE_META, MONTH_TABLE_META);
 
   const COLOR_SWATCHES = [
     { c:"",        t:"默认（去掉选中部分的颜色）" },
@@ -688,6 +721,17 @@
   function weekDisplay(key){
     const m = /^(\d{4})-W(\d{2})$/.exec(String(key || ""));
     return m ? m[1] + "年第" + Number(m[2]) + "周" : String(key || "");
+  }
+  function monthKeyFromDate(iso){ return String(iso || "").slice(0, 7); }
+  function todayMonthKey(){ return monthKeyFromDate(todayISO()); }
+  function shiftMonthKey(key, delta){
+    const m = /^(\d{4})-(\d{2})$/.exec(String(key || ""));
+    const d = m ? new Date(Number(m[1]), Number(m[2]) - 1 + delta, 1) : new Date();
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1);
+  }
+  function monthDisplay(key){
+    const m = /^(\d{4})-(\d{2})$/.exec(String(key || ""));
+    return m ? m[1] + "年" + Number(m[2]) + "月" : String(key || "");
   }
   const esc = (s) => String(s == null ? "" : s)
     .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
@@ -848,11 +892,14 @@
      ============================================================ */
   const LS_PREFIX = "diary.v2.";
   const LS_WEEK_PREFIX = "diary.week.v1.";
-  let mode = "day";                       // day | week
+  const LS_MONTH_PREFIX = "diary.month.v1.";
+  let mode = "day";                       // day | week | month
   let state = null;
   let currentDate = todayISO();
   let currentWeek = weekKeyFromDate(currentDate);
+  let currentMonth = monthKeyFromDate(currentDate);
   let weekPinned = false;
+  let monthPinned = false;
   let saveTimer = null;
   let statusEl = null, appEl = null;
 
@@ -902,26 +949,24 @@
   }
 
   /* ---------------- 周报状态 ---------------- */
-  function weeklyDefaultLayout(){
+  function defaultLayout(meta){
     const out = {};
-    Object.keys(WK_TABLE_META).forEach(function(key){
-      const meta = WK_TABLE_META[key];
-      out[key] = { cols: meta.cols.slice(), rows: meta.rows.slice() };
+    Object.keys(meta).forEach(function(key){
+      out[key] = { cols: meta[key].cols.slice(), rows: meta[key].rows.slice() };
     });
     return out;
   }
-  function normalizeWeeklyLayout(raw){
-    const out = weeklyDefaultLayout();
+  function normalizeLayout(raw, meta){
+    const out = defaultLayout(meta);
     if (!raw || typeof raw !== "object") return out;
     Object.keys(out).forEach(function(key){
       const src = raw[key];
       if (!src || typeof src !== "object") return;
-      const meta = WK_TABLE_META[key];
-      if (Array.isArray(src.cols) && src.cols.length === meta.cols.length){
+      if (Array.isArray(src.cols) && src.cols.length === meta[key].cols.length){
         out[key].cols = normalizeCols(src.cols);
       }
       if (Array.isArray(src.rows)){
-        out[key].rows = meta.rows.map(function(_, i){
+        out[key].rows = meta[key].rows.map(function(_, i){
           const v = src.rows[i];
           return (typeof v === "number" && v > 0)
             ? Math.round(Math.min(400, Math.max(24, v)))
@@ -931,6 +976,10 @@
     });
     return out;
   }
+  function weeklyDefaultLayout(){ return defaultLayout(WK_TABLE_META); }
+  function normalizeWeeklyLayout(raw){ return normalizeLayout(raw, WK_TABLE_META); }
+  function monthlyDefaultLayout(){ return defaultLayout(MONTH_TABLE_META); }
+  function normalizeMonthlyLayout(raw){ return normalizeLayout(raw, MONTH_TABLE_META); }
   function emptyWeeklyState(key){
     const k = key || currentWeek;
     return {
@@ -1064,6 +1113,119 @@
     s.__v = WEEK_DATA_VERSION;
     s.weekNo = weekNoText(key);
     s.dateRange = cnWeekRange(key);
+    s.__blank = false;
+    return s;
+  }
+
+  /* ---------------- 月报状态 ---------------- */
+  function emptyMonthlyState(key){
+    const k = key || currentMonth;
+    return {
+      __v: MONTH_DATA_VERSION,
+      __blank: true,
+      time: monthDisplay(k),
+      keyword: "",
+      annualGoals: Array.from({length:3}, function(){
+        return { goal:"", progress:"" };
+      }),
+      focus: MONTH_FOCUS.map(function(){ return { text:"" }; }),
+      frogs: Array.from({length:3}, function(){ return { text:"" }; }),
+      lessons: Array.from({length:3}, function(){
+        return { phenomenon:"", action:"" };
+      }),
+      nextFrogs: Array.from({length:3}, function(){ return { text:"" }; }),
+      gratitude: "",
+      layout: monthlyDefaultLayout()
+    };
+  }
+  function normalizeMonthly(raw, key){
+    const s = emptyMonthlyState(key);
+    if (!raw || typeof raw !== "object") return s;
+    const h = function(v){ return typeof v === "string" ? v : ""; };
+    s.time = h(raw.time) || s.time;
+    s.keyword = h(raw.keyword);
+    if (Array.isArray(raw.annualGoals)){
+      s.annualGoals = Array.from({length:3}, function(_, i){
+        const x = raw.annualGoals[i] || {};
+        return { goal:h(x.goal), progress:h(x.progress) };
+      });
+    }
+    if (Array.isArray(raw.focus)){
+      s.focus = MONTH_FOCUS.map(function(_, i){
+        return { text:h((raw.focus[i] || {}).text) };
+      });
+    }
+    if (Array.isArray(raw.frogs)){
+      s.frogs = Array.from({length:3}, function(_, i){
+        return { text:h((raw.frogs[i] || {}).text) };
+      });
+    }
+    if (Array.isArray(raw.lessons)){
+      s.lessons = Array.from({length:3}, function(_, i){
+        const x = raw.lessons[i] || {};
+        return { phenomenon:h(x.phenomenon), action:h(x.action) };
+      });
+    }
+    if (Array.isArray(raw.nextFrogs)){
+      s.nextFrogs = Array.from({length:3}, function(_, i){
+        return { text:h((raw.nextFrogs[i] || {}).text) };
+      });
+    }
+    s.gratitude = h(raw.gratitude);
+    s.layout = normalizeMonthlyLayout(raw.layout);
+    s.__blank = false;
+    return s;
+  }
+  function isBlankMonthly(s){
+    if (!s) return true;
+    const b = emptyMonthlyState(currentMonth);
+    return ["keyword","annualGoals","focus","frogs","lessons","nextFrogs","gratitude"].every(function(k){
+      return sameValue(s[k], b[k]);
+    });
+  }
+  function monthlyTemplateState(key){
+    const k = key || currentMonth;
+    const s = emptyMonthlyState(k);
+    s.__blank = false;
+    s.keyword = "聚焦与复盘";
+    s.annualGoals = [
+      { goal:"完成年度核心项目第一阶段", progress:"本月推进 25%，关键节点按计划" },
+      { goal:"保持规律运动与早睡", progress:"运动 9 次，早睡 18 天" },
+      { goal:"每月读完 2 本书", progress:"读完 2 本，输出 1 篇笔记" }
+    ];
+    s.focus = [
+      { text:"睡眠平均 7 小时，运动 9 次，体重下降 1 kg，精力稳定" },
+      { text:"每周一次家庭晚餐，周末陪孩子户外活动 2 次" },
+      { text:"完成 3 件要事，日均深度工作 2 小时，拖延明显减少" },
+      { text:"收入稳定，支出控制在预算内，储蓄率 30%" },
+      { text:"周末短途出游 1 次，看电影 1 场" },
+      { text:"压力主要来自临时会议，通过晨间复盘保持平稳" },
+      { text:"主动联系 3 位朋友，参加 1 次行业交流" },
+      { text:"完成 1 门课程，读书 2 本，输出 4 篇笔记" }
+    ];
+    s.frogs = [
+      { text:"完成年度核心项目的方案评审" },
+      { text:"建立稳定的运动与早睡习惯" },
+      { text:"读完 2 本书并输出读书笔记" }
+    ];
+    s.lessons = [
+      { phenomenon:"临时会议频繁打断深度工作", action:"把上午 9:00-11:00 设为无会议时段" },
+      { phenomenon:"晚上刷手机导致晚睡", action:"睡前把手机放到客厅，固定 22:30 阅读" },
+      { phenomenon:"月度目标拆分不够具体", action:"每月初把目标拆成 4 个周任务并设检查点" }
+    ];
+    s.nextFrogs = [
+      { text:"完成项目第二阶段方案并提交" },
+      { text:"保持每周 3 次运动，23:00 前睡觉" },
+      { text:"读完 2 本书并完成 2 篇输出" }
+    ];
+    s.gratitude = "感谢家人的支持，感谢团队在项目中的配合，也感谢自己坚持复盘。";
+    return s;
+  }
+  function inheritMonthly(src, key){
+    const s = JSON.parse(JSON.stringify(src));
+    s.__v = MONTH_DATA_VERSION;
+    s.time = monthDisplay(key);
+    s.keyword = "";
     s.__blank = false;
     return s;
   }
@@ -1333,6 +1495,20 @@
     return null;
   }
 
+  function findPrevMonthRecord(key){
+    for (let i=1;i<=COPY_LOOKBACK_MONTHS;i++){
+      const k = shiftMonthKey(key, -i);
+      try{
+        const raw = localStorage.getItem(LS_MONTH_PREFIX + k);
+        if (!raw) continue;
+        const s = normalizeMonthly(JSON.parse(raw), k);
+        if (isBlankMonthly(s)) continue;
+        return { key:k, state:s };
+      }catch(e){}
+    }
+    return null;
+  }
+
   function inheritState(src, date){
     const s = JSON.parse(JSON.stringify(src));
     s.__v = DATA_VERSION;
@@ -1362,11 +1538,22 @@
     }catch(e){}
     return emptyWeeklyState(key);
   }
+  function loadMonth(key){
+    try{
+      const raw = localStorage.getItem(LS_MONTH_PREFIX + key);
+      if (raw) return normalizeMonthly(JSON.parse(raw), key);
+    }catch(e){}
+    return emptyMonthlyState(key);
+  }
   function loadCurrent(){
-    return mode === "week" ? loadWeek(currentWeek) : loadDay(currentDate);
+    if (mode === "week") return loadWeek(currentWeek);
+    if (mode === "month") return loadMonth(currentMonth);
+    return loadDay(currentDate);
   }
   function currentStorageKey(){
-    return mode === "week" ? LS_WEEK_PREFIX + currentWeek : LS_PREFIX + currentDate;
+    if (mode === "week") return LS_WEEK_PREFIX + currentWeek;
+    if (mode === "month") return LS_MONTH_PREFIX + currentMonth;
+    return LS_PREFIX + currentDate;
   }
   function save(){
     try{
@@ -1397,6 +1584,7 @@
   const GH_DEFAULT_REPO = "wantianxiangsean/diary-backup";
   const GH_FOLDER = "diary";
   const GH_WEEK_FOLDER = "weekly";
+  const GH_MONTH_FOLDER = "monthly";
   const GH_IDLE_MS = 10000;
   let ghAutoTimer = null;
   let ghBusy = false;
@@ -1496,11 +1684,25 @@
     if (sha) body.sha = sha;
     return ghCall("PUT", "/repos/" + cfg.repo + "/contents/" + path, body);
   }
-  function ghKindPrefix(kind){ return kind === "week" ? LS_WEEK_PREFIX : LS_PREFIX; }
-  function ghKindFolder(kind){ return kind === "week" ? GH_WEEK_FOLDER : GH_FOLDER; }
-  function ghMarkKey(kind, key){ return kind === "week" ? "week:" + key : key; }
+  function ghKindPrefix(kind){
+    if (kind === "week") return LS_WEEK_PREFIX;
+    if (kind === "month") return LS_MONTH_PREFIX;
+    return LS_PREFIX;
+  }
+  function ghKindFolder(kind){
+    if (kind === "week") return GH_WEEK_FOLDER;
+    if (kind === "month") return GH_MONTH_FOLDER;
+    return GH_FOLDER;
+  }
+  function ghMarkKey(kind, key){
+    if (kind === "week") return "week:" + key;
+    if (kind === "month") return "month:" + key;
+    return key;
+  }
   function ghRecordLabel(kind, key){
-    return kind === "week" ? weekDisplay(key) + "周报" : key + " 的日记";
+    if (kind === "week") return weekDisplay(key) + " 的周报";
+    if (kind === "month") return monthDisplay(key) + " 的月报";
+    return key + " 的日记";
   }
   function ghRecordPath(kind, key){ return ghKindFolder(kind) + "/" + key + ".json"; }
   async function ghBackupRecord(kind, key, opts){
@@ -1511,7 +1713,9 @@
     const marks = ghLoadMarks();
     const mk = ghMarkKey(kind, key);
     if (!opts.force && marks[mk] === ghHash(raw)) return "本篇没有变化，跳过";
-    const msg = kind === "week" ? "备份 " + weekDisplay(key) + " 的周报" : "备份 " + key + " 的日记";
+    const msg = kind === "week"
+      ? "备份 " + weekDisplay(key) + " 的周报"
+      : (kind === "month" ? "备份 " + monthDisplay(key) + " 的月报" : "备份 " + key + " 的日记");
     await ghPutFile(cfg, ghRecordPath(kind, key), ghPretty(raw), msg);
     marks[mk] = ghHash(raw);
     ghSaveMarks(marks);
@@ -1530,20 +1734,25 @@
     const jobs = [];
     ghLocalKeys("day").forEach(function(k){ jobs.push({ kind:"day", key:k }); });
     ghLocalKeys("week").forEach(function(k){ jobs.push({ kind:"week", key:k }); });
-    if (!jobs.length) throw new Error("本机还没有任何日记或周报");
+    ghLocalKeys("month").forEach(function(k){ jobs.push({ kind:"month", key:k }); });
+    if (!jobs.length) throw new Error("本机还没有任何日记、周报或月报");
     const cfg = ghCfg();
     const marks = ghLoadMarks();
-    let ok = 0, fail = 0, dayOk = 0, weekOk = 0, firstErr = "";
+    let ok = 0, fail = 0, dayOk = 0, weekOk = 0, monthOk = 0, firstErr = "";
     for (let i=0;i<jobs.length;i++){
       const job = jobs[i];
       ghStatus("备份中 " + (i+1) + "/" + jobs.length + "：" + ghRecordLabel(job.kind, job.key), "");
       const raw = localStorage.getItem(ghKindPrefix(job.kind) + job.key);
       try{
-        const msg = job.kind === "week" ? "备份 " + weekDisplay(job.key) + " 的周报" : "备份 " + job.key + " 的日记";
+        const msg = job.kind === "week"
+          ? "备份 " + weekDisplay(job.key) + " 的周报"
+          : (job.kind === "month" ? "备份 " + monthDisplay(job.key) + " 的月报" : "备份 " + job.key + " 的日记");
         await ghPutFile(cfg, ghRecordPath(job.kind, job.key), ghPretty(raw), msg);
         marks[ghMarkKey(job.kind, job.key)] = ghHash(raw);
         ok++;
-        if (job.kind === "week") weekOk++; else dayOk++;
+        if (job.kind === "week") weekOk++;
+        else if (job.kind === "month") monthOk++;
+        else dayOk++;
       }catch(err){
         fail++;
         if (!firstErr) firstErr = ghFriendly(err);
@@ -1551,7 +1760,7 @@
     }
     ghSaveMarks(marks);
     if (!ok) throw new Error(firstErr || "全部失败");
-    return "已备份 " + ok + " 篇（日记 " + dayOk + " 篇，周报 " + weekOk + " 篇）" +
+    return "已备份 " + ok + " 篇（日记 " + dayOk + " 篇，周报 " + weekOk + " 篇，月报 " + monthOk + " 篇）" +
            (fail ? "，失败 " + fail + " 篇（" + firstErr + "）" : "（" + ghTime() + "）");
   }
   async function ghListBackups(kind){
@@ -1563,7 +1772,9 @@
       if (err.status === 404) return [];
       throw err;
     }
-    const re = kind === "week" ? /^(\d{4}-W\d{2})\.json$/ : /^(\d{4}-\d{2}-\d{2})\.json$/;
+    const re = kind === "week"
+      ? /^(\d{4}-W\d{2})\.json$/
+      : (kind === "month" ? /^(\d{4}-\d{2})\.json$/ : /^(\d{4}-\d{2}-\d{2})\.json$/);
     return (Array.isArray(items) ? items : []).filter(function(it){
       return it.type === "file" && re.test(it.name);
     }).map(function(it){
@@ -1574,9 +1785,10 @@
     const cfg = ghCfg();
     const dayFiles = await ghListBackups("day");
     const weekFiles = await ghListBackups("week");
-    const files = dayFiles.concat(weekFiles);
-    if (!files.length) throw new Error("云端 " + GH_FOLDER + "/ 和 " + GH_WEEK_FOLDER + "/ 里还没有备份文件");
-    let added = 0, replaced = 0, skipped = 0, dayAdded = 0, weekAdded = 0;
+    const monthFiles = await ghListBackups("month");
+    const files = dayFiles.concat(weekFiles, monthFiles);
+    if (!files.length) throw new Error("云端 " + GH_FOLDER + "/、" + GH_WEEK_FOLDER + "/ 和 " + GH_MONTH_FOLDER + "/ 里还没有备份文件");
+    let added = 0, replaced = 0, skipped = 0, dayAdded = 0, weekAdded = 0, monthAdded = 0;
     for (let i=0;i<files.length;i++){
       const f = files[i];
       ghStatus("恢复中 " + (i+1) + "/" + files.length + "：" + ghRecordLabel(f.kind, f.key), "");
@@ -1586,12 +1798,16 @@
       const got = await ghCall("GET", "/repos/" + cfg.repo + "/contents/" + f.path + ghRef(cfg));
       const text = b64decodeUtf8(got && got.content);
       const obj = JSON.parse(text);
-      const val = f.kind === "week" ? normalizeWeekly(obj, f.key) : normalize(obj);
+      const val = f.kind === "week"
+        ? normalizeWeekly(obj, f.key)
+        : (f.kind === "month" ? normalizeMonthly(obj, f.key) : normalize(obj));
       localStorage.setItem(storageKey, JSON.stringify(val));
       if (exists) replaced++;
       else {
         added++;
-        if (f.kind === "week") weekAdded++; else dayAdded++;
+        if (f.kind === "week") weekAdded++;
+        else if (f.kind === "month") monthAdded++;
+        else dayAdded++;
       }
     }
     if (added || replaced){
@@ -1600,7 +1816,7 @@
       render();
       resetHistory();
     }
-    return "恢复完成：新增 " + added + " 篇（日记 " + dayAdded + " 篇，周报 " + weekAdded + " 篇）" +
+    return "恢复完成：新增 " + added + " 篇（日记 " + dayAdded + " 篇，周报 " + weekAdded + " 篇，月报 " + monthAdded + " 篇）" +
            (replaced ? "，覆盖 " + replaced + " 篇" : "") +
            (skipped ? "，跳过本机已有 " + skipped + " 篇" : "");
   }
@@ -1614,7 +1830,7 @@
     const cfg = ghCfg();
     if (!cfg.auto || !cfg.token || !cfg.repo) return;
     const kind = mode;
-    const key = kind === "week" ? currentWeek : currentDate;
+    const key = kind === "week" ? currentWeek : (kind === "month" ? currentMonth : currentDate);
     const raw = localStorage.getItem(ghKindPrefix(kind) + key);
     if (!raw) return;
     if (ghLoadMarks()[ghMarkKey(kind, key)] === ghHash(raw)) return;
@@ -1695,7 +1911,7 @@
     });
     ghEl("ghNow").addEventListener("click", function(){
       const kind = mode;
-      const key = kind === "week" ? currentWeek : currentDate;
+      const key = kind === "week" ? currentWeek : (kind === "month" ? currentMonth : currentDate);
       ghRun(ghBackupRecord(kind, key, {force:true}), "备份本篇");
     });
     ghEl("ghAll").addEventListener("click", function(){ ghRun(ghBackupAll(), "备份全部"); });
@@ -1828,6 +2044,7 @@
      ============================================================ */
   function render(){
     if (mode === "week"){ renderWeekly(); return; }
+    if (mode === "month"){ renderMonthly(); return; }
     appEl.innerHTML =
       '<div class="motto">' + ed("motto", state.motto, "写下今天的座右铭…") + '</div>' +
 
@@ -1929,7 +2146,7 @@
      周报整页渲染
      ============================================================ */
   function wkTableHtml(key, cls, rows){
-    const meta = WK_TABLE_META[key];
+    const meta = REPORT_TABLE_META[key];
     const lay = (state.layout && state.layout[key]) || { cols:meta.cols, rows:[] };
     const cols = (Array.isArray(lay.cols) && lay.cols.length === meta.cols.length) ? lay.cols : meta.cols;
     const heights = Array.isArray(lay.rows) ? lay.rows : [];
@@ -2085,6 +2302,109 @@
         '</section>' +
 
         '<p class="wk-empty-note">本周报内容自动保存在本机；「备份」会把周报同步到云端仓库的 weekly/ 目录。</p>' +
+      '</div>';
+
+    bind();
+    if (selectMode) applySelectMode();
+    else {
+      applyWeeklyEditMode();
+      hideColorBar();
+    }
+  }
+
+  /* ============================================================
+     月报整页渲染
+     ============================================================ */
+  function renderMonthly(){
+    const annualRows = state.annualGoals.map(function(r, i){
+      return '<tr>' +
+        '<td>' + ed("annualGoals." + i + ".goal", r.goal, "年度目标…") + '</td>' +
+        '<td>' + ed("annualGoals." + i + ".progress", r.progress, "本月进度% / 说明…") + '</td>' +
+      '</tr>';
+    });
+    const focusRows = state.focus.map(function(r, i){
+      return '<tr>' +
+        '<td class="wk-label-left">' + esc(MONTH_FOCUS[i]) + '</td>' +
+        '<td>' + ed("focus." + i + ".text", r.text, "写事实 + 数据…") + '</td>' +
+      '</tr>';
+    });
+    const frogRows = state.frogs.map(function(r, i){
+      return '<tr>' +
+        '<td class="wk-fix">' + ["①","②","③"][i] + '</td>' +
+        '<td>' + ed("frogs." + i + ".text", r.text, "本月最重要成果…") + '</td>' +
+      '</tr>';
+    });
+    const lessonRows = state.lessons.map(function(r, i){
+      return '<tr>' +
+        '<td>' + ed("lessons." + i + ".phenomenon", r.phenomenon, "事实 / 现象…") + '</td>' +
+        '<td>' + ed("lessons." + i + ".action", r.action, "原因 / 对策…") + '</td>' +
+      '</tr>';
+    });
+    const nextRows = state.nextFrogs.map(function(r, i){
+      return '<tr>' +
+        '<td class="wk-fix">' + (i + 1) + '</td>' +
+        '<td>' + ed("nextFrogs." + i + ".text", r.text, "下月优先要事…") + '</td>' +
+      '</tr>';
+    });
+
+    const annualHead = '<tr><td class="t-head">年度目标</td><td class="t-head">本月进度% / 说明</td></tr>';
+    const focusHead = '<tr><td class="t-head">关注维度</td><td class="t-head">本月情况</td></tr>';
+    const frogHead = '<tr><td class="t-head">序号</td><td class="t-head">成果</td></tr>';
+    const lessonHead = '<tr><td class="t-head">现象 / 事实</td><td class="t-head">原因 / 对策</td></tr>';
+    const nextHead = '<tr><td class="t-head">序号</td><td class="t-head">目标</td></tr>';
+
+    appEl.innerHTML =
+      '<div class="week-page month-page">' +
+        '<div class="wk-title">易效能 · 月度检视表（月报）</div>' +
+        '<div class="wk-meta">' +
+          '<label><span>时间：</span>' + ed("time", state.time, monthDisplay(currentMonth), { single:true }) + '</label>' +
+          '<label><span>本月关键词：</span>' + ed("keyword", state.keyword, "写下本月关键词…", { single:true }) + '</label>' +
+        '</div>' +
+
+        '<section class="sec">' +
+          '<div class="banner wk-red">一、对照年度目标（进度 0-100%）</div>' +
+          '<div class="sec-body">' +
+            wkTableHtml("mAnnual", "annual", [annualHead].concat(annualRows)) +
+          '</div>' +
+        '</section>' +
+
+        '<section class="sec">' +
+          '<div class="banner">二、八大关注回顾（写事实 + 数据）</div>' +
+          '<div class="sec-body">' +
+            wkTableHtml("mFocus", "focus", [focusHead].concat(focusRows)) +
+          '</div>' +
+        '</section>' +
+
+        '<section class="sec">' +
+          '<div class="banner wk-yellow">三、本月三只大青蛙（最重要成果）</div>' +
+          '<div class="sec-body">' +
+            wkTableHtml("mFrogs", "frogs", [frogHead].concat(frogRows)) +
+          '</div>' +
+        '</section>' +
+
+        '<section class="sec">' +
+          '<div class="banner wk-red">四、本月卡点与教训（事实/现象→原因→对策）</div>' +
+          '<div class="sec-body">' +
+            wkTableHtml("mLessons", "lessons", [lessonHead].concat(lessonRows)) +
+          '</div>' +
+        '</section>' +
+
+        '<section class="sec">' +
+          '<div class="banner">五、下月三只大青蛙（优先要事）</div>' +
+          '<div class="sec-body">' +
+            wkTableHtml("mNext", "next", [nextHead].concat(nextRows)) +
+          '</div>' +
+        '</section>' +
+
+        '<section class="sec">' +
+          '<div class="banner wk-green">六、感恩</div>' +
+          '<div class="sec-body">' +
+            '<div class="wk-summary"><div class="wk-summary-label">本月最想感谢的人与事</div>' +
+              '<div class="wk-summary-body">' + ed("gratitude", state.gratitude, "写下本月想感谢的人与事…") + '</div></div>' +
+          '</div>' +
+        '</section>' +
+
+        '<p class="wk-empty-note">本月报内容自动保存在本机；「备份」会把月报同步到云端仓库的 monthly/ 目录。</p>' +
       '</div>';
 
     bind();
@@ -2992,6 +3312,53 @@
     return L.join("\n") + "\n";
   }
 
+  function monthlyToMarkdown(){
+    const L = [];
+    const t = function(v){ return htmlToText(v); };
+    const line = function(arr){ return "| " + arr.map(cellMd).join(" | ") + " |"; };
+    L.push("# 易效能 · 月度检视表（月报）", "");
+    L.push("- 时间：" + (t(state.time).trim() || monthDisplay(currentMonth)));
+    L.push("- 本月关键词：" + (t(state.keyword).trim() || "—"));
+
+    L.push("", "## 一、对照年度目标（进度 0-100%）", "");
+    L.push(line(["年度目标","本月进度% / 说明"]));
+    L.push(line(["---","---"]));
+    state.annualGoals.forEach(function(r){
+      L.push(line([t(r.goal), t(r.progress)]));
+    });
+
+    L.push("", "## 二、八大关注回顾（写事实 + 数据）", "");
+    L.push(line(["关注维度","本月情况"]));
+    L.push(line(["---","---"]));
+    state.focus.forEach(function(r, i){
+      L.push(line([MONTH_FOCUS[i], t(r.text)]));
+    });
+
+    L.push("", "## 三、本月三只大青蛙（最重要成果）", "");
+    L.push(line(["序号","成果"]));
+    L.push(line(["---","---"]));
+    state.frogs.forEach(function(r, i){
+      L.push(line([["①","②","③"][i], t(r.text)]));
+    });
+
+    L.push("", "## 四、本月卡点与教训（事实/现象→原因→对策）", "");
+    L.push(line(["现象 / 事实","原因 / 对策"]));
+    L.push(line(["---","---"]));
+    state.lessons.forEach(function(r){
+      L.push(line([t(r.phenomenon), t(r.action)]));
+    });
+
+    L.push("", "## 五、下月三只大青蛙（优先要事）", "");
+    L.push(line(["序号","目标"]));
+    L.push(line(["---","---"]));
+    state.nextFrogs.forEach(function(r, i){
+      L.push(line([String(i + 1), t(r.text)]));
+    });
+
+    L.push("", "## 六、感恩", "", t(state.gratitude).trim() || "—");
+    return L.join("\n") + "\n";
+  }
+
   function sec(L, title, val){
     L.push("", "## " + title);
     if (val && val.trim()) L.push("", val.trim());
@@ -3007,31 +3374,43 @@
     toast._t = setTimeout(function(){ t.classList.remove("show"); }, 1700);
   }
   function refreshChrome(){
+    const isDay = mode === "day";
     const isWeek = mode === "week";
+    const isMonth = mode === "month";
     const brand = document.getElementById("brand");
-    if (brand) brand.textContent = isWeek ? "每周周报" : "每日日记";
-    document.querySelectorAll(".day-only").forEach(function(el){ el.hidden = isWeek; });
+    if (brand) brand.textContent = isMonth ? "每月月报" : (isWeek ? "每周周报" : "每日日记");
+    document.querySelectorAll(".day-only").forEach(function(el){ el.hidden = !isDay; });
     document.querySelectorAll(".week-only").forEach(function(el){ el.hidden = !isWeek; });
+    document.querySelectorAll(".month-only").forEach(function(el){ el.hidden = !isMonth; });
     const md = document.getElementById("modeDay"), mw = document.getElementById("modeWeek");
-    if (md) md.classList.toggle("on", !isWeek);
+    const mm = document.getElementById("modeMonth");
+    if (md) md.classList.toggle("on", isDay);
     if (mw) mw.classList.toggle("on", isWeek);
+    if (mm) mm.classList.toggle("on", isMonth);
     const cp = document.getElementById("copyPrev");
     if (cp){
-      cp.textContent = isWeek ? "复制上周" : "复制昨天";
-      cp.title = isWeek ? "把最近一份填写过的周报复制到本周" : "把最近一份填写过的日记复制到本篇";
+      cp.textContent = isMonth ? "复制上月" : (isWeek ? "复制上周" : "复制昨天");
+      cp.title = isMonth
+        ? "把最近一份填写过的月报复制到本月"
+        : (isWeek ? "把最近一份填写过的周报复制到本周" : "把最近一份填写过的日记复制到本篇");
     }
     const clr = document.getElementById("clearDay");
-    if (clr) clr.title = isWeek ? "清空这一周" : "清空这一篇";
+    if (clr) clr.title = isMonth ? "清空这一月" : (isWeek ? "清空这一周" : "清空这一篇");
     document.getElementById("datePick").value = currentDate;
     const wp = document.getElementById("weekPick");
     if (wp) wp.value = currentWeek;
-    document.title = isWeek ? weekDisplay(currentWeek) + " 周报" : currentDate + " 日记";
+    const mp = document.getElementById("monthPick");
+    if (mp) mp.value = currentMonth;
+    document.title = isMonth
+      ? monthDisplay(currentMonth) + " 月报"
+      : (isWeek ? weekDisplay(currentWeek) + " 周报" : currentDate + " 日记");
   }
   function goto(date){
     save();
     mode = "day";
     currentDate = date;
     weekPinned = false;
+    monthPinned = false;
     state = loadDay(date);
     sel = null; dragging = null;
     editingTables = { monthly:false, weekly:false };
@@ -3054,6 +3433,20 @@
     resetHistory();
     setStatus(state.__blank ? "" : "已保存", state.__blank ? "" : "saved");
   }
+  function gotoMonth(key){
+    const k = /^\d{4}-\d{2}$/.test(String(key || "")) ? key : currentMonth;
+    save();
+    mode = "month";
+    currentMonth = k;
+    monthPinned = true;
+    state = loadMonth(k);
+    sel = null; dragging = null;
+    editingTables = { monthly:false, weekly:false };
+    refreshChrome();
+    render();
+    resetHistory();
+    setStatus(state.__blank ? "" : "已保存", state.__blank ? "" : "saved");
+  }
   function switchMode(next){
     if (next === mode) return;
     save();
@@ -3061,6 +3454,10 @@
       if (!weekPinned) currentWeek = weekKeyFromDate(currentDate);
       mode = "week";
       state = loadWeek(currentWeek);
+    }else if (next === "month"){
+      if (!monthPinned) currentMonth = monthKeyFromDate(currentDate);
+      mode = "month";
+      state = loadMonth(currentMonth);
     }else{
       mode = "day";
       state = loadDay(currentDate);
@@ -3073,12 +3470,13 @@
     setStatus(state.__blank ? "" : "已保存", state.__blank ? "" : "saved");
   }
   function downloadMd(){
+    const isMonth = mode === "month";
     const isWeek = mode === "week";
-    const md = isWeek ? weeklyToMarkdown() : toMarkdown();
+    const md = isMonth ? monthlyToMarkdown() : (isWeek ? weeklyToMarkdown() : toMarkdown());
     const blob = new Blob([md], {type:"text/markdown;charset=utf-8"});
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = isWeek ? currentWeek + "-周报.md" : currentDate + "-日记.md";
+    a.download = isMonth ? currentMonth + "-月报.md" : (isWeek ? currentWeek + "-周报.md" : currentDate + "-日记.md");
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1500);
     toast("已导出 " + a.download);
@@ -3113,11 +3511,28 @@
     document.getElementById("todayBtn").addEventListener("click", function(){ goto(todayISO()); });
     document.getElementById("modeDay").addEventListener("click", function(){ switchMode("day"); });
     document.getElementById("modeWeek").addEventListener("click", function(){ switchMode("week"); });
+    document.getElementById("modeMonth").addEventListener("click", function(){ switchMode("month"); });
     document.getElementById("prevWeek").addEventListener("click", function(){ gotoWeek(shiftWeekKey(currentWeek, -1)); });
     document.getElementById("nextWeek").addEventListener("click", function(){ gotoWeek(shiftWeekKey(currentWeek, 1)); });
     document.getElementById("thisWeekBtn").addEventListener("click", function(){ gotoWeek(todayWeekKey()); });
     document.getElementById("weekPick").addEventListener("change", function(e){ if (e.target.value) gotoWeek(e.target.value); });
+    document.getElementById("prevMonth").addEventListener("click", function(){ gotoMonth(shiftMonthKey(currentMonth, -1)); });
+    document.getElementById("nextMonth").addEventListener("click", function(){ gotoMonth(shiftMonthKey(currentMonth, 1)); });
+    document.getElementById("thisMonthBtn").addEventListener("click", function(){ gotoMonth(todayMonthKey()); });
+    document.getElementById("monthPick").addEventListener("change", function(e){ if (e.target.value) gotoMonth(e.target.value); });
     document.getElementById("copyPrev").addEventListener("click", function(){
+      if (mode === "month"){
+        const prev = findPrevMonthRecord(currentMonth);
+        if (!prev){ toast("往前 12 个月没有填写过的月报"); return; }
+        if (!isBlankMonthly(state) && !confirm("用 " + monthDisplay(prev.key) + " 的月报内容覆盖当前这一月？")) return;
+        snapshotNow();
+        state = inheritMonthly(prev.state, currentMonth);
+        snapshotNow();
+        save(); setStatus("已保存","saved");
+        render();
+        toast("已填入 " + monthDisplay(prev.key) + " 的月报内容");
+        return;
+      }
       if (mode === "week"){
         const prev = findPrevWeekRecord(currentWeek);
         if (!prev){ toast("往前 52 周内没有填写过的周报"); return; }
@@ -3142,19 +3557,26 @@
     });
 
     document.getElementById("fillTpl").addEventListener("click", function(){
-      if (!confirm("用示例内容覆盖" + (mode === "week" ? "当前这一周" : "当前这一篇") + "？当前内容会被替换。")) return;
+      const what = mode === "month" ? "当前这一月" : (mode === "week" ? "当前这一周" : "当前这一篇");
+      if (!confirm("用示例内容覆盖" + what + "？当前内容会被替换。")) return;
       snapshotNow();
-      state = mode === "week" ? weeklyTemplateState(currentWeek) : templateState();
+      state = mode === "month"
+        ? monthlyTemplateState(currentMonth)
+        : (mode === "week" ? weeklyTemplateState(currentWeek) : templateState());
       snapshotNow();
       sel = null;
       render(); save(); setStatus("已保存","saved");
       toast("已载入示例内容");
     });
     document.getElementById("clearDay").addEventListener("click", function(){
-      const what = mode === "week" ? weekDisplay(currentWeek) + " 这一周" : currentDate + " 这一篇";
+      const what = mode === "month"
+        ? monthDisplay(currentMonth) + " 这一月"
+        : (mode === "week" ? weekDisplay(currentWeek) + " 这一周" : currentDate + " 这一篇");
       if (!confirm("清空 " + what + "的全部内容？")) return;
       snapshotNow();
-      if (mode === "week"){
+      if (mode === "month"){
+        state = emptyMonthlyState(currentMonth);
+      }else if (mode === "week"){
         state = emptyWeeklyState(currentWeek);
       }else{
         state = emptyState();
@@ -3163,7 +3585,7 @@
       snapshotNow();
       sel = null;
       render(); save(); setStatus("已保存","saved");
-      toast(mode === "week" ? "已清空本周" : "已清空本篇");
+      toast(mode === "month" ? "已清空本月" : (mode === "week" ? "已清空本周" : "已清空本篇"));
     });
     document.getElementById("exportMd").addEventListener("click", downloadMd);
     document.getElementById("undoBtn").addEventListener("click", doUndo);
