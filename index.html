@@ -205,6 +205,14 @@
   .goal .g-content{flex:1 1 auto}
   .goal .cellbtn{position:static;flex:0 0 auto;opacity:0}
   .goal:hover .cellbtn{opacity:1}
+  .goal-cell{display:flex;align-items:flex-start;gap:6px}
+  .goal-cell .cb{margin-top:6px}
+  .goal-cell .ed{flex:1 1 auto;min-width:0}
+  .goal-cell.done .ed{
+    text-decoration:line-through;text-decoration-thickness:1px;
+    color:#8a8a8a;
+  }
+  .goal-cell.done .ed:empty{text-decoration:none;color:#b9b9b9}
   .toolrow{margin:4px 0 4px}
 
   /* ================= 表格 ================= */
@@ -1336,10 +1344,12 @@
         const src = row[c];
         if (!src) continue;
         const t = CELL_TYPES.indexOf(src.t) >= 0 ? src.t : "body";
-        line[c] = makeCell(t, h(src.v), {
+        const extra = {
           rs: Math.max(1, Math.min(60, Number(src.rs) || 1)),
           cs: Math.max(1, Math.min(12, Number(src.cs) || 1))
-        });
+        };
+        if (typeof src.checked === "boolean") extra.checked = src.checked;
+        line[c] = makeCell(t, h(src.v), extra);
       }
       cells.push(line);
     }
@@ -2040,10 +2050,17 @@
       row.forEach(function(cell, c){
         if (!cell) return;
         const rs = cell.rs || 1, cs = cell.cs || 1;
+        let inner = ed("tables." + key + ".cells." + r + "." + c + ".v", cell.v, "…");
+        if (key === "weekly" && c === 1 && r > 0 && cell.t === "body" && rs === 1 && cs === 1){
+          inner = '<div class="goal-cell' + (cell.checked ? ' done' : '') + '">' +
+            '<input type="checkbox" class="cb" data-week-check="' + r + '"' + (cell.checked ? ' checked' : '') + '>' +
+            inner +
+          '</div>';
+        }
         body += '<td class="t-' + cell.t + '" data-r="' + r + '" data-c="' + c + '"' +
                 (rs > 1 ? ' rowspan="' + rs + '"' : "") +
                 (cs > 1 ? ' colspan="' + cs + '"' : "") + '>' +
-                ed("tables." + key + ".cells." + r + "." + c + ".v", cell.v, "…") + "</td>";
+                inner + "</td>";
       });
       body += "</tr>";
     });
@@ -3231,6 +3248,18 @@
       const path = el.dataset.check;
       el.addEventListener("change", function(){ setPath(path, el.checked); scheduleSave(); });
     });
+    appEl.querySelectorAll("[data-week-check]").forEach(function(cb){
+      cb.addEventListener("change", function(){
+        const r = Number(cb.dataset.weekCheck);
+        const g = state.tables.weekly;
+        const cell = g && g.cells[r] && g.cells[r][1];
+        if (!cell) return;
+        cell.checked = cb.checked;
+        const wrap = cb.closest(".goal-cell");
+        if (wrap) wrap.classList.toggle("done", cb.checked);
+        scheduleSave();
+      });
+    });
 
     appEl.querySelectorAll("[data-add]").forEach(function(btn){
       btn.addEventListener("click", function(){
@@ -3334,7 +3363,7 @@
       const key = wrap.dataset.table;
       wrap.addEventListener("pointerdown", function(e){
         if (!editingTables[key]) return;
-        if (e.target.closest(".chandle,.rhandle,.tbl-tools,.tbl-toggle")) return;
+        if (e.target.closest(".chandle,.rhandle,.tbl-tools,.tbl-toggle,.cb,[data-week-check]")) return;
         const td = e.target.closest("td");
         if (!td) return;
         e.preventDefault();
@@ -3375,7 +3404,7 @@
     appEl.querySelectorAll(".wk-tblwrap").forEach(function(wrap){
       const key = wrap.dataset.wkTable;
       wrap.addEventListener("pointerdown", function(e){
-        if (e.target.closest(".chandle,.rhandle,.tbl-toggle,.tbl-tools")) return;
+        if (e.target.closest(".chandle,.rhandle,.tbl-toggle,.tbl-tools,.cb,[data-week-check]")) return;
         const td = e.target.closest("td");
         if (!td || td.dataset.r == null) return;
         const r0 = Number(td.dataset.r), c0 = Number(td.dataset.c);
