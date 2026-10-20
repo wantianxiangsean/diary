@@ -161,8 +161,13 @@
   .qrow .qtext{flex:0 0 auto;white-space:nowrap}
   .qrow .ed{flex:1 1 auto}
   @media (max-width:620px){
-    .qrow{flex-wrap:wrap}
-    .qrow .qtext{white-space:normal}
+    .qrow{
+      display:grid;grid-template-columns:18px minmax(0,1fr);
+      gap:2px 7px;align-items:start;padding:7px 0;
+    }
+    .qrow .cb{grid-row:1;grid-column:1;margin-top:6px}
+    .qrow .qtext{grid-row:1;grid-column:2;white-space:normal}
+    .qrow .ed{grid-row:2;grid-column:2}
   }
 
   /* ================= 小节外框 ================= */
@@ -311,6 +316,17 @@
   .habit .hname{flex:0 0 auto;white-space:nowrap}
   .habit .note{flex:0 1 340px;color:#C0562F;font-style:italic;font-size:16.5px}
   @media (max-width:620px){
+    .brand{display:none}
+    .topbar{padding:7px 8px;gap:5px}
+    .topbar button{font-size:14px;padding:4px 8px}
+    .topbar button.icon{padding:4px 8px}
+    .modetabs{margin-right:0}
+    .modetabs button{padding:4px 9px !important;font-size:14px !important}
+    .topbar input[type="date"],
+    .topbar input[type="week"],
+    .topbar input[type="month"]{font-size:14px;padding:3px 5px}
+    .status{min-width:0;font-size:12.5px}
+    .spacer{flex:1 1 24px}
     .habit{flex-wrap:wrap}
     .habit .note{flex:1 1 100%}
   }
@@ -419,11 +435,23 @@
   .wk-empty-note{color:#8b8b8b;font-size:14px;margin:2px 0 0}
 
   @media (max-width:720px){
+    .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .tblwrap table.doc{min-width:680px}
     .week-page .sec-body{overflow-x:auto;-webkit-overflow-scrolling:touch}
     .week-page .wk-table{min-width:720px}
     .wk-reflect-row{grid-template-columns:1fr}
     .wk-reflect-q{border-right:0;border-bottom:1px solid var(--line)}
     .wk-meta label{min-width:100%}
+  }
+
+  @media (max-width:620px){
+    .goal{position:relative;flex-wrap:wrap;align-items:flex-start}
+    .goal .g-title{flex:1 1 auto;min-width:0;padding-right:22px}
+    .goal .g-sep{display:none}
+    .goal .g-content{flex:1 1 100%;padding-left:18px}
+    .goal .cellbtn{
+      position:absolute;right:0;top:0;opacity:.45;
+    }
   }
 
   .toast{
