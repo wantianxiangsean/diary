@@ -108,6 +108,45 @@
   .ghstatus.bad{color:#c0392b}
   .ghnote{margin:6px 0 0;font-size:13.5px;color:#8b8b8b;line-height:1.55}
 
+  /* ================= 回看面板（不打印） ================= */
+  .findpanel{
+    display:none;z-index:55;background:#fbfdff;border-bottom:1px solid #cddff0;
+    padding:10px 14px;font-size:15.5px;
+  }
+  .findpanel.open{display:block}
+  .frow{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  .frow input[type="search"]{
+    font:inherit;font-size:15px;padding:5px 10px;border:1px solid #cfcfcf;border-radius:6px;
+    background:#fff;color:#222;flex:1 1 240px;min-width:0;
+  }
+  .findpanel .frow button{
+    font:inherit;font-size:15px;color:#222;background:#fafafa;border:1px solid #cfcfcf;
+    border-radius:6px;padding:4px 10px;cursor:pointer;white-space:nowrap;
+  }
+  .findpanel .frow button:hover{background:#eef5fb;border-color:#9dc4e2}
+  .fresults{max-height:45vh;overflow-y:auto;margin-top:8px}
+  .fresults:empty{display:none}
+  .fgroup{font-size:13.5px;color:#8b8b8b;margin:4px 0 5px}
+  .fitem{
+    display:block;width:100%;text-align:left;background:#fff;border:1px solid #e3eaf0;
+    border-radius:7px;padding:7px 10px;margin-bottom:6px;cursor:pointer;
+    font:inherit;font-size:15px;color:#222;white-space:normal;
+  }
+  .fitem:hover{background:#f2f8fd;border-color:#9dc4e2}
+  .fitem .ftitle{font-weight:700;color:var(--blue);font-size:15px}
+  .fitem .fkind{font-size:12.5px;color:#8b8b8b;margin-left:6px;font-weight:400}
+  .fitem .fsnip{
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+    color:#5d6870;font-size:14px;margin-top:2px;line-height:1.5;word-break:break-word;
+  }
+  .fitem mark{background:#FFE9A8;color:inherit;border-radius:2px}
+  .fempty{color:#8b8b8b;padding:8px 2px;font-size:14.5px}
+  @media (max-width:620px){
+    .findpanel{padding:8px 8px}
+    .fresults{max-height:60vh}
+    .fitem{font-size:14.5px}
+  }
+
   /* ================= 纸张 ================= */
   .page{
     width:min(900px,100%);
@@ -398,6 +437,9 @@
     background:#1B75BB;color:#fff;text-align:center;
     font-size:23px;font-weight:700;letter-spacing:.08em;
   }
+  .wk-draft{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:-8px 0 14px}
+  .wk-draft .addbtn{margin:0}
+  .wk-draft-note{font-size:13.5px;color:#9aa7b1}
   .wk-meta{
     display:flex;flex-wrap:wrap;align-items:center;gap:7px 22px;
     margin:0 0 18px;padding:8px 10px;border:1px solid #d5e1ea;border-radius:5px;
@@ -489,7 +531,7 @@
     @page{margin:12mm}
     html,body{background:#fff}
     body{font-size:14px}
-    .topbar,.ghpanel,.addbtn,.cellbtn,.toolrow,.toast,.copynote,.foot,.wk-empty-note,
+    .topbar,.ghpanel,.findpanel,.addbtn,.cellbtn,.toolrow,.toast,.copynote,.foot,.wk-empty-note,
     .tbl-bar,.tbl-overlay,.tbl-tools,.colorbar{display:none !important}
     .page{box-shadow:none;margin:0;width:auto;padding:0;max-width:none}
     .banner,.item,.sec,table.doc tr,.goal{break-inside:avoid}
@@ -542,6 +584,7 @@
     <button class="icon fontbtn" id="fontMinus" title="减小编辑字号">A−</button>
     <button class="icon fontbtn" id="fontPlus" title="增大编辑字号">A+</button>
   </span>
+  <button id="findBtn" title="回看与搜索全部记录">🔍 回看</button>
   <button id="copyPrev" title="把最近一份填写过的日记复制到本篇">复制昨天</button>
   <button id="fillTpl" title="载入示例内容">示例</button>
   <button id="clearDay" class="danger" title="清空这一篇">清空</button>
@@ -582,6 +625,15 @@
   </div>
   <p class="ghnote">本机备份把 <strong>全部日记、周报、月报</strong>打成一个 .json 文件下载下来，不需要 token，也不上传任何地方——换电脑或清浏览器数据前先导一份，最稳妥。</p>
   <p class="ghnote">日记会写进 <code>diary/日期.json</code>，周报会写进 <code>weekly/周.json</code>（如 <code>2026-W42.json</code>），月报会写进 <code>monthly/月.json</code>（如 <code>2026-10.json</code>）。<strong>请用私有仓库</strong>——用公开仓库等于把日记公开。token 只保存在本机浏览器，建议只给它该仓库的 Contents 读写权限。</p>
+</div>
+
+<div class="findpanel" id="findPanel">
+  <div class="frow">
+    <input type="search" id="findInput" aria-label="搜索全部记录" placeholder="搜索全部日记、周报、月报…" autocomplete="off">
+    <span class="ghstatus" id="findCount"></span>
+    <button id="findClose">关闭</button>
+  </div>
+  <div class="fresults" id="findResults" role="list"></div>
 </div>
 
 <main class="page">
@@ -1055,7 +1107,7 @@
   function emptyState(){
     return {
       __v: DATA_VERSION,
-      motto:"", dayWhat:"",
+      motto:"", dayWhat:"", place:"",
       sunrise:"", sunset:"", wake:"", sleep:"",
       morning: MORNING_QUESTIONS.map(function(){ return ""; }),
       morningDone: MORNING_QUESTIONS.map(function(){ return false; }),
@@ -1157,7 +1209,7 @@
   function normalizeWeekly(raw, key){
     const s = emptyWeeklyState(key);
     if (!raw || typeof raw !== "object") return s;
-    const h = function(v){ return typeof v === "string" ? v : ""; };
+    const h = function(v){ return cleanHtml(typeof v === "string" ? v : ""); };
     s.weekNo = h(raw.weekNo) || s.weekNo;
     s.dateRange = h(raw.dateRange) || s.dateRange;
 
@@ -1288,7 +1340,7 @@
   function normalizeMonthly(raw, key){
     const s = emptyMonthlyState(key);
     if (!raw || typeof raw !== "object") return s;
-    const h = function(v){ return typeof v === "string" ? v : ""; };
+    const h = function(v){ return cleanHtml(typeof v === "string" ? v : ""); };
     s.time = h(raw.time) || s.time;
     s.keyword = h(raw.keyword);
     if (Array.isArray(raw.annualGoals)){
@@ -1490,7 +1542,7 @@
     const isV3 = (Number(raw.__v) || 0) >= DATA_VERSION;
     const h = function(v){ return isV3 ? cleanHtml(str(v)) : esc(str(v)); };
 
-    ["motto","dayWhat","sunrise","sunset","wake","sleep","annualTitle",
+    ["motto","dayWhat","place","sunrise","sunset","wake","sleep","annualTitle",
      "annualWorkLabel","annualLifeLabel","monthlyTitle","weeklyTitle",
      "B","C","E","F","G"].forEach(function(k){ s[k] = h(raw[k]) || s[k]; });
 
@@ -1665,6 +1717,7 @@
     const s = JSON.parse(JSON.stringify(src));
     s.__v = DATA_VERSION;
     s.dayWhat = cnDate(date);
+    s.place = "";
     s.morningDone = MORNING_QUESTIONS.map(function(){ return false; });
     s.habits = HABITS.map(function(_, i){
       const h0 = (s.habits && s.habits[i]) || {};
@@ -2403,6 +2456,7 @@
           ed("dayWhat", state.dayWhat, cnDate(currentDate), { cls:"daywhat", single:true }) +
         '</div>' +
         '<div class="drows">' +
+          '<label class="drow"><span>地点：</span>' + ed("place", state.place, "今天在哪里…", { single:true }) + '</label>' +
           '<label class="drow"><span>日出：</span>' + ed("sunrise", state.sunrise, "6:12", { single:true }) + '</label>' +
           '<label class="drow"><span>日落：</span>' + ed("sunset", state.sunset, "19:45", { single:true }) + '</label>' +
           '<label class="drow"><span>起床：</span>' + ed("wake", state.wake, "6:30", { single:true }) + '</label>' +
@@ -2595,6 +2649,10 @@
           '<label><span>周次：</span>' + ed("weekNo", state.weekNo, weekNoText(currentWeek), { single:true }) + '</label>' +
           '<label><span>日期：</span>' + ed("dateRange", state.dateRange, cnWeekRange(currentWeek), { single:true }) + '</label>' +
         '</div>' +
+        '<div class="wk-draft">' +
+          '<button type="button" class="addbtn" id="wkDraftBtn">🧩 根据本周日记生成草稿</button>' +
+          '<span class="wk-draft-note">只填空着的格子，已有内容不动</span>' +
+        '</div>' +
 
         '<section class="sec">' +
           '<h2 class="banner wk-red">一、本周三只青蛙（高能要事 · 先吃青蛙）</h2>' +
@@ -2713,6 +2771,10 @@
         '<div class="wk-meta">' +
           '<label><span>时间：</span>' + ed("time", state.time, monthDisplay(currentMonth), { single:true }) + '</label>' +
           '<label><span>本月关键词：</span>' + ed("keyword", state.keyword, "写下本月关键词…", { single:true }) + '</label>' +
+        '</div>' +
+        '<div class="wk-draft">' +
+          '<button type="button" class="addbtn" id="moDraftBtn">🧩 根据本月周报生成草稿</button>' +
+          '<span class="wk-draft-note">只填空着的格子，已有内容不动</span>' +
         '</div>' +
 
         '<section class="sec">' +
@@ -3849,6 +3911,11 @@
         window.addEventListener("pointercancel", onUp);
       });
     });
+
+    const wkDraftBtn = document.getElementById("wkDraftBtn");
+    if (wkDraftBtn) wkDraftBtn.addEventListener("click", weeklyDraftFill);
+    const moDraftBtn = document.getElementById("moDraftBtn");
+    if (moDraftBtn) moDraftBtn.addEventListener("click", monthlyDraftFill);
   }
 
   /* ============================================================
@@ -3857,10 +3924,14 @@
   function gridMarkdown(key, L){
     const g = state.tables[key];
     if (!g || !g.cells.length) return;
-    const rows = g.cells.map(function(row){
-      return row.map(function(cell){
+    const rows = g.cells.map(function(row, r){
+      return row.map(function(cell, c){
         if (!cell) return "";
-        return htmlToText(cell.v);
+        let text = htmlToText(cell.v);
+        if (key === "weekly" && c === 1 && r > 0 && cell.t === "body"){
+          text = (cell.checked ? "[x] " : "[ ] ") + text;
+        }
+        return text;
       }).map(cellMd);
     });
     const C = g.cols.length;
@@ -3882,6 +3953,7 @@
     if (t(state.motto)) L.push("**" + t(state.motto) + "**");
     L.push("");
     L.push("**今天是什么日子：**");
+    if (t(state.place)) L.push("- 地点：" + t(state.place));
     if (t(state.sunrise)) L.push("- 日出：" + t(state.sunrise));
     if (t(state.sunset)) L.push("- 日落：" + t(state.sunset));
     if (t(state.wake)) L.push("- 起床：" + t(state.wake));
@@ -4171,6 +4243,372 @@
     toast("已导出 " + a.download);
   }
 
+  /* ============================================================
+     回看与搜索
+     ============================================================ */
+  let findIndex = null;
+  let findTimer = null;
+
+  function findEl(id){ return document.getElementById(id); }
+
+  /* 递归收集记录里的纯文字，跳过字号/布局和自动生成的日期抬头 */
+  function recordText(obj, out){
+    if (!obj || typeof obj !== "object") return out;
+    const isCell = typeof obj.t === "string" && CELL_TYPES.indexOf(obj.t) >= 0;
+    Object.keys(obj).forEach(function(k){
+      if (k === "sizes" || k === "layout" || k === "__v") return;
+      if (k === "dayWhat" || k === "weekNo" || k === "dateRange" || k === "time") return;
+      if (k === "annualWorkLabel" || k === "annualLifeLabel") return;
+      /* 表头与固定标签不算正文 */
+      if (isCell && k === "v" && obj.t !== "body" && obj.t !== "check") return;
+      const v = obj[k];
+      if (k === "t" && typeof v === "string" && CELL_TYPES.indexOf(v) >= 0) return;
+      if (typeof v === "string"){
+        const t = htmlToText(v).replace(/\s+/g, " ").trim();
+        if (t) out.push(t);
+      }else if (v && typeof v === "object"){
+        recordText(v, out);
+      }
+    });
+    return out;
+  }
+
+  function buildFindIndex(){
+    const items = [];
+    const add = function(kind, prefix, key, blankFn, label, sortKey){
+      let raw = null;
+      try{ raw = localStorage.getItem(prefix + key); }catch(e){ return; }
+      if (!raw) return;
+      let obj = null;
+      try{ obj = JSON.parse(raw); }catch(e){ return; }
+      if (blankFn(obj)) return;
+      items.push({
+        kind: kind, key: key, label: label, sortKey: sortKey,
+        text: recordText(obj, []).join(" · ")
+      });
+    };
+    let keys = [];
+    try{ keys = Object.keys(localStorage); }catch(e){ keys = []; }
+    keys.forEach(function(k){
+      if (k.indexOf(LS_PREFIX) === 0){
+        const d = k.slice(LS_PREFIX.length);
+        add("day", LS_PREFIX, d, isBlankRecord, cnDate(d), d);
+      }else if (k.indexOf(LS_WEEK_PREFIX) === 0){
+        const w = k.slice(LS_WEEK_PREFIX.length);
+        add("week", LS_WEEK_PREFIX, w, isBlankWeekly, weekDisplay(w), weekStartFromKey(w));
+      }else if (k.indexOf(LS_MONTH_PREFIX) === 0){
+        const m = k.slice(LS_MONTH_PREFIX.length);
+        add("month", LS_MONTH_PREFIX, m, isBlankMonthly, monthDisplay(m), m + "-01");
+      }
+    });
+    items.sort(function(a, b){ return a.sortKey < b.sortKey ? 1 : (a.sortKey > b.sortKey ? -1 : 0); });
+    return items;
+  }
+
+  function findSnippet(text, q){
+    if (!q) return text.slice(0, 110);
+    const i = text.toLowerCase().indexOf(q);
+    if (i < 0) return text.slice(0, 110);
+    const start = Math.max(0, i - 24);
+    return (start > 0 ? "…" : "") + text.slice(start, i + q.length + 80);
+  }
+
+  function findHighlight(text, q){
+    if (!q) return esc(text);
+    const lower = text.toLowerCase();
+    const out = [];
+    let from = 0, i = lower.indexOf(q);
+    while (i >= 0){
+      out.push(esc(text.slice(from, i)));
+      out.push("<mark>" + esc(text.slice(i, i + q.length)) + "</mark>");
+      from = i + q.length;
+      i = lower.indexOf(q, from);
+    }
+    out.push(esc(text.slice(from)));
+    return out.join("");
+  }
+
+  function renderFind(){
+    const box = findEl("findResults"), countEl = findEl("findCount");
+    if (!box || !findIndex) return;
+    const q = String((findEl("findInput") || {}).value || "").trim().toLowerCase();
+    let d = 0, w = 0, m = 0;
+    findIndex.forEach(function(it){ if (it.kind === "day") d++; else if (it.kind === "week") w++; else m++; });
+    if (countEl) countEl.textContent = "共 " + d + " 篇日记 · " + w + " 篇周报 · " + m + " 篇月报";
+
+    const list = q ? findIndex.filter(function(it){ return it.text.toLowerCase().indexOf(q) >= 0; }) : findIndex;
+    if (!list.length){
+      box.innerHTML = '<div class="fempty">' +
+        (q ? "没找到包含“" + esc(q) + "”的记录" : "本机还没有写过内容") + '</div>';
+      return;
+    }
+    const limit = q ? 60 : 30;
+    const head = q
+      ? "找到 " + list.length + " 条" + (list.length > limit ? "，显示前 " + limit + " 条" : "")
+      : "最近写过";
+    box.innerHTML = '<div class="fgroup">' + esc(head) + '</div>' + list.slice(0, limit).map(function(it){
+      return '<button type="button" class="fitem" role="listitem" data-kind="' + it.kind + '" data-key="' + esc(it.key) + '">' +
+        '<span class="ftitle">' + esc(it.label) + '</span>' +
+        '<span class="fkind">' + (it.kind === "week" ? "周报" : (it.kind === "month" ? "月报" : "日记")) + '</span>' +
+        '<div class="fsnip">' + findHighlight(findSnippet(it.text, q), q) + '</div>' +
+      '</button>';
+    }).join("");
+  }
+
+  function openFind(){
+    const panel = findEl("findPanel");
+    if (!panel) return;
+    panel.classList.add("open");
+    const btn = findEl("findBtn");
+    if (btn) btn.classList.add("on");
+    findIndex = buildFindIndex();
+    renderFind();
+    const inp = findEl("findInput");
+    if (inp && !window.matchMedia("(pointer: coarse)").matches) inp.focus();
+  }
+  function closeFind(){
+    const panel = findEl("findPanel");
+    if (!panel) return;
+    panel.classList.remove("open");
+    const btn = findEl("findBtn");
+    if (btn) btn.classList.remove("on");
+  }
+  function findIsOpen(){
+    const panel = findEl("findPanel");
+    return !!(panel && panel.classList.contains("open"));
+  }
+  function jumpToRecord(kind, key){
+    closeFind();
+    if (kind === "week") gotoWeek(key);
+    else if (kind === "month") gotoMonth(key);
+    else goto(key);
+    window.scrollTo(0, 0);
+  }
+  function bindFind(){
+    const btn = findEl("findBtn");
+    if (btn) btn.addEventListener("click", function(){ if (findIsOpen()) closeFind(); else openFind(); });
+    const close = findEl("findClose");
+    if (close) close.addEventListener("click", closeFind);
+    const inp = findEl("findInput");
+    if (inp) inp.addEventListener("input", function(){
+      clearTimeout(findTimer);
+      findTimer = setTimeout(renderFind, 120);
+    });
+    const box = findEl("findResults");
+    if (box) box.addEventListener("click", function(e){
+      const item = e.target.closest(".fitem");
+      if (!item) return;
+      jumpToRecord(item.dataset.kind, item.dataset.key);
+    });
+  }
+
+  /* ============================================================
+     周报草稿：按本周 7 天的日记自动填一版（只填空位）
+     ============================================================ */
+  function plainText(html){
+    return htmlToText(html || "").replace(/\s+/g, " ").trim();
+  }
+  function textLines(html){
+    return htmlToText(html || "").split(/\n+/)
+      .map(function(s){ return s.replace(/\s+/g, " ").trim(); })
+      .filter(Boolean);
+  }
+  function joinUnique(list, max){
+    const seen = {}, out = [];
+    list.forEach(function(x){
+      const v = String(x || "").trim();
+      if (!v || seen[v]) return;
+      seen[v] = 1;
+      out.push(v);
+    });
+    const s = out.join("；");
+    return max && s.length > max ? s.slice(0, max) + "…" : s;
+  }
+  /* 多行内容按原样换行保留（用在「觉察」「卡点」这类清单型字段） */
+  function joinLines(list){
+    const seen = {}, out = [];
+    list.forEach(function(x){
+      textLines(x).forEach(function(line){
+        if (seen[line]) return;
+        seen[line] = 1;
+        out.push(line);
+      });
+    });
+    return out.join("\n");
+  }
+  function getPathValue(path){
+    const p = String(path).split(".");
+    let o = state;
+    for (let i=0;i<p.length;i++){
+      if (o == null) return "";
+      o = o[p[i]];
+    }
+    return o == null ? "" : o;
+  }
+  function weekDraftAssignments(){
+    const start = weekStartFromKey(currentWeek);
+    const days = [];
+    for (let i=0;i<7;i++){
+      const iso = shiftDate(start, i);
+      const s = loadDay(iso);
+      if (!isBlankRecord(s)) days.push({ iso: iso, s: s });
+    }
+    const assign = [];
+    const add = function(path, text){ if (text) assign.push({ path: path, value: esc(text) }); };
+
+    const frogPlans = [];
+    const good = [], bad = [];
+    const health = [], learn = [], social = [], money = [];
+
+    days.forEach(function(d){
+      const s = d.s;
+      const first = textLines(s.B)[0];
+      if (first) frogPlans.push({ plan: first, actual: plainText(s.C) });
+      (s.D || []).forEach(function(r){
+        const tag = d.iso.slice(5).replace("-", "/");
+        const title = plainText(r.title);
+        const head = title ? tag + " " + title : tag;
+        if (plainText(r.p)) good.push(head + "：" + plainText(r.p));
+        if (plainText(r.m)) bad.push(head + "：" + plainText(r.m));
+      });
+      [s.H && s.H.exercise, s.H && s.H.diet].forEach(function(x){
+        if (plainText(x)) health.push(plainText(x));
+      });
+      if (plainText(s.G)) learn.push(plainText(s.G));
+      if (plainText(s.F)) social.push(plainText(s.F));
+      if (plainText(s.E)) money.push(plainText(s.E));
+    });
+
+    /* 三只青蛙：每天取第一条高能要事，填进还空着的行；已经在表里的不再重复填 */
+    const existing = (state.frogs || []).map(function(r){ return plainText(r.plan); });
+    let slot = 0;
+    frogPlans.forEach(function(f){
+      if (existing.indexOf(plainText(f.plan)) >= 0) return;
+      while (slot < 3 && existing[slot]) slot++;
+      if (slot >= 3) return;
+      add("frogs." + slot + ".plan", f.plan);
+      add("frogs." + slot + ".actual", f.actual);
+      existing[slot] = plainText(f.plan);
+      slot++;
+    });
+    add("colors.1.actual", joinUnique(health, 240));
+    add("colors.2.actual", joinUnique(learn, 240));
+    add("colors.3.actual", joinUnique(social, 240));
+    if (good.length) add("reflect.good", good.slice(0, 6).map(function(x){ return "• " + x; }).join("\n"));
+    if (bad.length) add("reflect.bad", bad.slice(0, 6).map(function(x){ return "• " + x; }).join("\n"));
+
+    const goalSrc = { "健康身体":health, "学习成长":learn, "人际社群":social, "理财财务":money };
+    WEEK_GOALS.forEach(function(dim, i){
+      const src = goalSrc[dim];
+      if (src) add("goals." + i + ".progress", joinUnique(src, 200));
+    });
+
+    return { days: days.length, assign: assign };
+  }
+  function weeklyDraftFill(){
+    const draft = weekDraftAssignments();
+    if (!draft.days){ toast("本周还没有写过日记"); return; }
+    const list = draft.assign.filter(function(a){ return !plainText(getPathValue(a.path)); });
+    if (!list.length){ toast("周报里已经没有空位可填了"); return; }
+    snapshotNow();
+    list.forEach(function(a){ setPath(a.path, a.value); });
+    render(); save();
+    snapshotNow();
+    setStatus("已保存", "saved");
+    toast("已按本周 " + draft.days + " 天的日记填入 " + list.length + " 处，可继续修改");
+  }
+
+  function monthlyDraftFill(){
+    const draft = monthDraftAssignments();
+    if (!draft.weeks){ toast("这个月还没有写过周报"); return; }
+    const list = draft.assign.filter(function(a){ return !plainText(getPathValue(a.path)); });
+    if (!list.length){ toast("月报里已经没有空位可填了"); return; }
+    snapshotNow();
+    list.forEach(function(a){ setPath(a.path, a.value); });
+    render(); save();
+    snapshotNow();
+    setStatus("已保存", "saved");
+    toast("已按本月 " + draft.weeks + " 份周报填入 " + list.length + " 处，可继续修改");
+  }
+
+  /* 这个月覆盖到的 ISO 周 */
+  function monthWeekKeys(mk){
+    const p = String(mk || currentMonth).split("-").map(Number);
+    if (!p[0] || !p[1]) return [];
+    const last = new Date(p[0], p[1], 0).getDate();
+    const keys = [];
+    for (let d=1; d<=last; d++){
+      const k = weekKeyFromDate(p[0] + "-" + pad2(p[1]) + "-" + pad2(d));
+      if (keys.indexOf(k) < 0) keys.push(k);
+    }
+    return keys;
+  }
+  function monthDraftAssignments(){
+    const weeks = [];
+    monthWeekKeys(currentMonth).forEach(function(k){
+      const s = loadWeek(k);
+      if (!isBlankWeekly(s)) weeks.push({ key: k, s: s });
+    });
+    const assign = [];
+    const add = function(path, text){ if (text) assign.push({ path: path, value: esc(text) }); };
+
+    const health = [], family = [], learn = [], aware = [];
+    const done = [], todo = [], lessons = [], nextItems = [];
+
+    weeks.forEach(function(w){
+      const s = w.s;
+      (s.colors || []).forEach(function(c, i){
+        const a = plainText(c.actual);
+        if (!a) return;
+        if (i === 1) health.push(a);
+        else if (i === 2) learn.push(a);
+        else if (i === 3) family.push(a);
+      });
+      const bad = plainText(s.reflect && s.reflect.bad);
+      const act = plainText(s.reflect && s.reflect.action);
+      if (bad) aware.push(s.reflect.bad);
+      if (bad || act) lessons.push({
+        phenomenon: textLines(s.reflect && s.reflect.bad).join("\n"),
+        action: textLines(s.reflect && s.reflect.action).join("\n")
+      });
+      (s.frogs || []).forEach(function(f){
+        const p = plainText(f.plan);
+        if (!p) return;
+        const a = plainText(f.actual);
+        if (a) done.push(p + "（" + a + "）");
+        else todo.push(p);
+      });
+    });
+    const lastWeek = weeks[weeks.length - 1];
+    if (lastWeek){
+      (lastWeek.s.nextFrogs || []).forEach(function(n){
+        const t = plainText(n.item);
+        if (t) nextItems.push(t);
+      });
+    }
+
+    /* 八大关注：健康 0 / 家庭 1 / 觉察 5 / 成长 7 */
+    add("focus.0.text", joinUnique(health, 400));
+    add("focus.1.text", joinUnique(family, 400));
+    add("focus.5.text", joinLines(aware));
+    add("focus.7.text", joinUnique(learn, 400));
+
+    /* 本月三只青蛙：先放已经完成的，再补没完成的 */
+    done.concat(todo).slice(0, 3).forEach(function(t, i){
+      add("frogs." + i + ".text", t);
+    });
+
+    lessons.slice(0, 3).forEach(function(l, i){
+      add("lessons." + i + ".phenomenon", l.phenomenon);
+      add("lessons." + i + ".action", l.action);
+    });
+    nextItems.slice(0, 3).forEach(function(t, i){
+      add("nextFrogs." + i + ".text", t);
+    });
+
+    return { weeks: weeks.length, assign: assign };
+  }
+
   function init(){
     statusEl = document.getElementById("status");
     appEl = document.getElementById("app");
@@ -4313,6 +4751,7 @@
     }, true);
 
     document.addEventListener("keydown", function(e){
+      if (e.key === "Escape" && findIsOpen()){ closeFind(); return; }
       if (e.key === "Escape" && selectMode){
         selectMode = false;
         const sm = document.getElementById("selectMode");
@@ -4351,6 +4790,7 @@
       });
     }
     ghInit();
+    bindFind();
     document.addEventListener("visibilitychange", function(){
       if (document.hidden) ghAutoBackupNow();
     });
