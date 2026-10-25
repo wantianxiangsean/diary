@@ -256,14 +256,15 @@
   .goal .g-content{flex:1 1 auto}
   .goal .cellbtn{position:static;flex:0 0 auto;opacity:0}
   .goal:hover .cellbtn{opacity:1}
-  .goal-cell{display:flex;align-items:flex-start;gap:6px}
-  .goal-cell .cb{margin-top:6px}
-  .goal-cell .ed{flex:1 1 auto;min-width:0}
-  .goal-cell.done .ed{
+  .goal-lines{display:grid;gap:2px}
+  .goal-line{display:flex;align-items:flex-start;gap:6px}
+  .goal-line .cb{margin-top:6px}
+  .goal-line .ed{flex:1 1 auto;min-width:0}
+  .goal-line.done .ed{
     text-decoration:line-through;text-decoration-thickness:1px;
     color:#8a8a8a;
   }
-  .goal-cell.done .ed:empty{text-decoration:none;color:#b9b9b9}
+  .goal-line.done .ed:empty{text-decoration:none;color:#b9b9b9}
   .toolrow{margin:4px 0 4px}
 
   /* ================= 表格 ================= */
@@ -987,6 +988,84 @@
   function makeCell(t, v, extra){
     return Object.assign({ t:t || "body", v:v || "", rs:1, cs:1 }, extra || {});
   }
+
+  /* 目标列（月目标 / 周目标）里每一行单独带一个勾选框 */
+  function isGoalCell(key, r, c, cell){
+    if (!cell || cell.t !== "body" || r < 1) return false;
+    if ((cell.rs || 1) !== 1 || (cell.cs || 1) !== 1) return false;
+    if (key === "weekly") return c === 1;
+    if (key === "monthly") return c === 2;
+    return false;
+  }
+  function goalCellLines(cell){
+    const parts = String((cell && cell.v) || "").split(/<br\s*\/?>/i);
+    const checks = cell && Array.isArray(cell.checks) ? cell.checks : null;
+    const n = Math.max(parts.length, 1);
+    const out = [];
+    for (let i=0;i<n;i++){
+      out.push({ html: parts[i] || "", checked: checks ? !!checks[i] : !!(cell && cell.checked) });
+    }
+    return out;
+  }
+  /* 把每一行编辑器的内容合并回 cell.v，并同步勾选状态 */
+  function syncGoalCell(key, r, c){
+    const g = state.tables[key];
+    const cell = g && g.cells[r] && g.cells[r][c];
+    if (!cell) return;
+    const wrap = appEl.querySelector('.tblwrap[data-table="' + key + '"]');
+    const td = wrap && wrap.querySelector('td[data-r="' + r + '"][data-c="' + c + '"]');
+    const box = td && td.querySelector(".goal-lines");
+    if (!box) return;
+    const htmls = [], checks = [];
+    Array.prototype.slice.call(box.querySelectorAll(".goal-line")).forEach(function(row){
+      const e = row.querySelector("[data-goal-line]");
+      const cb = row.querySelector("[data-goal-check]");
+      if (e && editorIsEmpty(e)) e.innerHTML = "";
+      htmls.push(e ? cleanHtml(e.innerHTML) : "");
+      checks.push(!!(cb && cb.checked));
+    });
+    cell.v = htmls.join("<br>");
+    cell.checks = checks;
+    cell.checked = checks.length > 0 && checks.every(Boolean) && !!htmlToText(cell.v).trim();
+    scheduleSave();
+  }
+  /* 回车：把光标后的内容拆成下一行，并给它一个新勾选框 */
+  function addGoalLine(el, key, r, c, idx){
+    const sel = window.getSelection();
+    let tail = "";
+    if (sel && sel.rangeCount){
+      const range = sel.getRangeAt(0);
+      if (el.contains(range.endContainer)){
+        const after = document.createRange();
+        after.setStart(range.endContainer, range.endOffset);
+        after.setEnd(el, el.childNodes.length);
+        const frag = after.extractContents();
+        const tmp = document.createElement("div");
+        tmp.appendChild(frag);
+        tail = cleanHtml(tmp.innerHTML);
+      }
+    }
+    syncGoalCell(key, r, c);
+    const g = state.tables[key];
+    const cell = g && g.cells[r] && g.cells[r][c];
+    if (!cell) return;
+    const lines = goalCellLines(cell);
+    lines.splice(idx + 1, 0, { html: tail, checked: false });
+    cell.v = lines.map(function(l){ return l.html; }).join("<br>");
+    cell.checks = lines.map(function(l){ return l.checked; });
+    cell.checked = false;
+    scheduleSave();
+    render();
+    const next = appEl.querySelector('[data-goal-line="' + key + ',' + r + ',' + c + ',' + (idx + 1) + '"]');
+    if (next){
+      next.focus();
+      const range = document.createRange();
+      range.selectNodeContents(next);
+      range.collapse(true);
+      const s = window.getSelection();
+      if (s){ s.removeAllRanges(); s.addRange(range); }
+    }
+  }
   function normalizeCols(cols){
     const list = (Array.isArray(cols) ? cols : []).map(function(w){ return Math.max(5, Number(w) || 10); });
     if (!list.length) return [25,25,25,25];
@@ -1484,6 +1563,7 @@
           cs: Math.max(1, Math.min(12, Number(src.cs) || 1))
         };
         if (typeof src.checked === "boolean") extra.checked = src.checked;
+        if (Array.isArray(src.checks)) extra.checks = src.checks.map(function(x){ return !!x; });
         line[c] = makeCell(t, h(src.v), extra);
       }
       cells.push(line);
@@ -1632,6 +1712,9 @@
         if (!ca || !cb) { if (!!ca !== !!cb) return false; continue; }
         if ((ca.t || "") !== (cb.t || "")) return false;
         if (!!ca.checked !== !!cb.checked) return false;
+        const ka = ca.checks || [], kb = cb.checks || [];
+        if (ka.length !== kb.length) return false;
+        for (let i=0;i<ka.length;i++){ if (!!ka[i] !== !!kb[i]) return false; }
         if (htmlToText(ca.v || "").trim() !== htmlToText(cb.v || "").trim()) return false;
       }
     }
@@ -2368,12 +2451,19 @@
       row.forEach(function(cell, c){
         if (!cell) return;
         const rs = cell.rs || 1, cs = cell.cs || 1;
-        let inner = ed("tables." + key + ".cells." + r + "." + c + ".v", cell.v, "…");
-        if (key === "weekly" && c === 1 && r > 0 && cell.t === "body" && rs === 1 && cs === 1){
-          inner = '<div class="goal-cell' + (cell.checked ? ' done' : '') + '">' +
-            '<input type="checkbox" class="cb" data-week-check="' + r + '" aria-label="勾选完成：' + esc(htmlToText(cell.v) || "本周目标") + '"' + (cell.checked ? ' checked' : '') + '>' +
-            inner +
-          '</div>';
+        let inner;
+        if (isGoalCell(key, r, c, cell)){
+          inner = '<div class="goal-lines">' + goalCellLines(cell).map(function(l, i){
+            return '<div class="goal-line' + (l.checked ? ' done' : '') + '">' +
+              '<input type="checkbox" class="cb" data-goal-check="' + key + ',' + r + ',' + c + ',' + i + '"' +
+                ' aria-label="勾选完成：' + esc(htmlToText(l.html) || "目标") + '"' + (l.checked ? ' checked' : '') + '>' +
+              '<div class="ed" contenteditable="true" role="textbox" aria-multiline="false"' +
+                ' aria-label="第 ' + (i + 1) + ' 条目标" data-goal-line="' + key + ',' + r + ',' + c + ',' + i + '"' +
+                ' data-ph="…">' + (l.html || "") + '</div>' +
+            '</div>';
+          }).join("") + '</div>';
+        }else{
+          inner = ed("tables." + key + ".cells." + r + "." + c + ".v", cell.v, "…");
         }
         body += '<td class="t-' + cell.t + '" data-r="' + r + '" data-c="' + c + '"' +
                 (rs > 1 ? ' rowspan="' + rs + '"' : "") +
@@ -3662,6 +3752,7 @@
   function bind(){
     appEl.querySelectorAll(".ed").forEach(function(el){
       const path = el.dataset.path;
+      if (!path) return;
       const sync = function(){
         if (editorIsEmpty(el)){
           el.innerHTML = "";
@@ -3693,17 +3784,42 @@
       const path = el.dataset.check;
       el.addEventListener("change", function(){ setPath(path, el.checked); scheduleSave(); });
     });
-    appEl.querySelectorAll("[data-week-check]").forEach(function(cb){
+    appEl.querySelectorAll("[data-goal-check]").forEach(function(cb){
       cb.addEventListener("change", function(){
-        const r = Number(cb.dataset.weekCheck);
-        const g = state.tables.weekly;
-        const cell = g && g.cells[r] && g.cells[r][1];
+        const parts = cb.dataset.goalCheck.split(",");
+        const key = parts[0], r = Number(parts[1]), c = Number(parts[2]), i = Number(parts[3]);
+        const g = state.tables[key];
+        const cell = g && g.cells[r] && g.cells[r][c];
         if (!cell) return;
-        cell.checked = cb.checked;
-        const wrap = cb.closest(".goal-cell");
-        if (wrap) wrap.classList.toggle("done", cb.checked);
+        const lines = goalCellLines(cell);
+        const checks = lines.map(function(l){ return l.checked; });
+        checks[i] = cb.checked;
+        cell.checks = checks;
+        cell.checked = checks.length > 0 && checks.every(Boolean);
+        const row = cb.closest(".goal-line");
+        if (row) row.classList.toggle("done", cb.checked);
         scheduleSave();
       });
+    });
+
+    appEl.querySelectorAll("[data-goal-line]").forEach(function(el){
+      const parts = el.dataset.goalLine.split(",");
+      const key = parts[0], r = Number(parts[1]), c = Number(parts[2]), idx = Number(parts[3]);
+      const sync = function(){ syncGoalCell(key, r, c); };
+      el.addEventListener("focus", function(){ if (editorIsEmpty(el)) el.innerHTML = ""; });
+      el.addEventListener("input", sync);
+      el.addEventListener("blur", sync);
+      el.addEventListener("keydown", function(e){
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        addGoalLine(el, key, r, c, idx);
+      });
+      el.addEventListener("paste", function(e){
+        e.preventDefault();
+        const t = (e.clipboardData || window.clipboardData).getData("text/plain") || "";
+        document.execCommand("insertText", false, t.replace(/[\r\n]+/g, " "));
+      });
+      el.addEventListener("drop", function(e){ e.preventDefault(); });
     });
 
     appEl.querySelectorAll("[data-add]").forEach(function(btn){
@@ -3925,11 +4041,13 @@
     const rows = g.cells.map(function(row, r){
       return row.map(function(cell, c){
         if (!cell) return "";
-        let text = htmlToText(cell.v);
-        if (key === "weekly" && c === 1 && r > 0 && cell.t === "body"){
-          text = (cell.checked ? "[x] " : "[ ] ") + text;
+        if (isGoalCell(key, r, c, cell)){
+          return goalCellLines(cell).map(function(l){
+            const t = htmlToText(l.html).trim();
+            return t ? (l.checked ? "[x] " : "[ ] ") + t : "";
+          }).filter(Boolean).join("；");
         }
-        return text;
+        return htmlToText(cell.v);
       }).map(cellMd);
     });
     const C = g.cols.length;
