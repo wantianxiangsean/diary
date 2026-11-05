@@ -374,12 +374,6 @@
   .habit .drag-handle:active{cursor:grabbing}
   .habit.dragging{opacity:.4}
   .habit.drop-here{box-shadow:inset 0 2px 0 var(--blue)}
-  .habit-edit{
-    border:0;background:transparent;color:#b9c3cc;cursor:pointer;font:inherit;
-    font-size:14px;line-height:1;padding:0 4px;border-radius:4px;opacity:.45;transition:opacity .15s;
-  }
-  .habit:hover .habit-edit,.habit-edit:focus{opacity:1}
-  .habit-edit:hover{color:var(--blue);background:#eef5fb}
   .habit .hname{flex:0 0 auto;white-space:nowrap;cursor:text;border-radius:3px;padding:0 2px}
   .habit .hname:focus{outline:none;background:var(--focus);box-shadow:inset 0 0 0 1px #E7C97F}
   .habit-add{margin:4px 0 2px;font-size:14.5px;padding:2px 9px}
@@ -549,7 +543,7 @@
     html,body{background:#fff}
     body{font-size:14px}
     .topbar,.ghpanel,.findpanel,.addbtn,.cellbtn,.toolrow,.toast,.copynote,.foot,.wk-empty-note,
-    .tbl-bar,.tbl-overlay,.tbl-tools,.colorbar,.drag-handle,.habit-edit{display:none !important}
+    .tbl-bar,.tbl-overlay,.tbl-tools,.colorbar,.drag-handle{display:none !important}
     .page{box-shadow:none;margin:0;width:auto;padding:0;max-width:none}
     .banner,.item,.sec,table.doc tr,.goal{break-inside:avoid}
     .ed{background:transparent !important;box-shadow:none !important}
@@ -2615,7 +2609,6 @@
             '<input type="checkbox" class="cb" data-check="habits.' + k + '.checked" aria-label="' + esc(name) + '" ' + (h0.checked ? "checked" : "") + '>' +
             '<span class="hname" contenteditable="true" spellcheck="false" role="textbox"' +
               ' aria-label="习惯名称：' + esc(name) + '，点一下可改名" data-habit-name="' + i + '">' + esc(name) + '</span>' +
-            '<button type="button" class="habit-edit" data-habit-edit="' + i + '" title="编辑名称" aria-label="编辑名称">✎</button>' +
             ed("habits." + k + ".note", h0.note, "备注…", { cls:"note", single:true }) +
           '</div>';
         }).join("") +
@@ -3977,18 +3970,6 @@
         e.preventDefault();
         row.classList.remove("drop-here");
         moveHabit(habitDrag, Number(row.dataset.habitRow));
-      });
-    });
-
-    appEl.querySelectorAll("[data-habit-edit]").forEach(function(btn){
-      btn.addEventListener("click", function(){
-        const el = appEl.querySelector('[data-habit-name="' + btn.dataset.habitEdit + '"]');
-        if (!el) return;
-        el.focus();
-        const range = document.createRange();
-        range.selectNodeContents(el);
-        const s = window.getSelection();
-        if (s){ s.removeAllRanges(); s.addRange(range); }
       });
     });
 
