@@ -366,6 +366,20 @@
     letter-spacing:.04em;padding:0 0 2px;border-bottom:1px solid #e3edf5;
   }
   .habit{display:flex;align-items:center;gap:8px}
+  .habit .drag-handle{
+    flex:0 0 auto;cursor:grab;color:#b9c3cc;font-size:15px;line-height:1;
+    padding:0 2px;user-select:none;-webkit-user-select:none;opacity:.3;transition:opacity .15s;
+  }
+  .habit:hover .drag-handle{opacity:.85}
+  .habit .drag-handle:active{cursor:grabbing}
+  .habit.dragging{opacity:.4}
+  .habit.drop-here{box-shadow:inset 0 2px 0 var(--blue)}
+  .habit-edit{
+    border:0;background:transparent;color:#b9c3cc;cursor:pointer;font:inherit;
+    font-size:14px;line-height:1;padding:0 4px;border-radius:4px;opacity:.45;transition:opacity .15s;
+  }
+  .habit:hover .habit-edit,.habit-edit:focus{opacity:1}
+  .habit-edit:hover{color:var(--blue);background:#eef5fb}
   .habit .hname{flex:0 0 auto;white-space:nowrap;cursor:text;border-radius:3px;padding:0 2px}
   .habit .hname:focus{outline:none;background:var(--focus);box-shadow:inset 0 0 0 1px #E7C97F}
   .habit-add{margin:4px 0 2px;font-size:14.5px;padding:2px 9px}
@@ -535,7 +549,7 @@
     html,body{background:#fff}
     body{font-size:14px}
     .topbar,.ghpanel,.findpanel,.addbtn,.cellbtn,.toolrow,.toast,.copynote,.foot,.wk-empty-note,
-    .tbl-bar,.tbl-overlay,.tbl-tools,.colorbar{display:none !important}
+    .tbl-bar,.tbl-overlay,.tbl-tools,.colorbar,.drag-handle,.habit-edit{display:none !important}
     .page{box-shadow:none;margin:0;width:auto;padding:0;max-width:none}
     .banner,.item,.sec,table.doc tr,.goal{break-inside:avoid}
     .ed{background:transparent !important;box-shadow:none !important}
@@ -663,8 +677,9 @@
     "我今天怎样比昨天做的更好？"
   ];
 
-  /* 好习惯：可新增、可改名。每天的勾选和备注按「下标」存档，
-     新习惯只往后追加，已有记录不会错位。 */
+  /* 好习惯：可新增、可改名、可拖动排序。
+     每条习惯有一个固定的 k（数据槽位），每天的勾选和备注按 k 存档；
+     显示顺序由 HABIT_DEFS 的排列决定，所以拖动排序不影响历史记录。 */
   const HABIT_LS = "diary.habits.v1";
   const HABIT_GROUP_ORDER = ["身体好","心情好","变更好"];
   const DEFAULT_HABIT_DEFS = [
@@ -694,14 +709,21 @@
       if (raw){
         const d = JSON.parse(raw);
         if (d && Array.isArray(d.habits) && d.habits.length){
-          const list = d.habits.map(function(h){
-            return { n: String(h && h.n || ""), g: String(h && h.g || HABIT_GROUP_ORDER[0]) };
+          const list = d.habits.map(function(h, i){
+            const k = (h && typeof h.k === "number" && h.k >= 0) ? Math.floor(h.k) : i;
+            return { n: String(h && h.n || ""), g: String(h && h.g || HABIT_GROUP_ORDER[0]), k: k };
           }).filter(function(h){ return h.n; });
           if (list.length) return list;
         }
       }
     }catch(e){}
-    return DEFAULT_HABIT_DEFS.map(function(h){ return { n:h.n, g:h.g }; });
+    return DEFAULT_HABIT_DEFS.map(function(h, i){ return { n:h.n, g:h.g, k:i }; });
+  }
+  /* 数据槽位总数（HABIT_DEFS 里的 k 取最大值 +1），每天的习惯数组按这个长度对齐 */
+  function habitSlotCount(){
+    let n = 0;
+    HABIT_DEFS.forEach(function(h){ if (h.k + 1 > n) n = h.k + 1; });
+    return n;
   }
   function saveHabitDefs(){
     try{ localStorage.setItem(HABIT_LS, JSON.stringify({ version:1, habits:HABIT_DEFS })); }catch(e){}
@@ -1270,7 +1292,7 @@
       D: Array.from({length:D_COUNT}, function(){ return { title:"", p:"", m:"", s:"" }; }),
       E:"", F:"", G:"",
       H:{ steps:"", exercise:"", diet:"" },
-      habits: HABITS.map(function(){ return { checked:false, note:"" }; }),
+      habits: Array.from({length: habitSlotCount()}, function(){ return { checked:false, note:"" }; }),
       sizes: {},
       __blank:true
     };
@@ -1657,10 +1679,11 @@
     s.D = TEMPLATE.D.map(function(r){ return { title:esc(r.title), p:esc(r.p), m:esc(r.m), s:esc(r.s) }; });
     s.E = esc(TEMPLATE.E); s.F = esc(TEMPLATE.F); s.G = esc(TEMPLATE.G);
     s.H = { steps:esc(TEMPLATE.H.steps), exercise:esc(TEMPLATE.H.exercise), diet:esc(TEMPLATE.H.diet) };
-    s.habits = HABITS.map(function(name){
-      return {
-        checked: TEMPLATE.habitsDone.indexOf(name) >= 0,
-        note: esc(TEMPLATE.habitNotes[name] || "")
+    s.habits = Array.from({length: habitSlotCount()}, function(){ return { checked:false, note:"" }; });
+    HABIT_DEFS.forEach(function(def){
+      s.habits[def.k] = {
+        checked: TEMPLATE.habitsDone.indexOf(def.n) >= 0,
+        note: esc(TEMPLATE.habitNotes[def.n] || "")
       };
     });
     return s;
@@ -1704,8 +1727,8 @@
     if (raw.H && typeof raw.H === "object")
       ["steps","exercise","diet"].forEach(function(k){ s.H[k] = h(raw.H[k]); });
     if (Array.isArray(raw.habits))
-      s.habits = HABITS.map(function(_,i){
-        const x = raw.habits[i] || {};
+      s.habits = Array.from({length: habitSlotCount()}, function(_, k){
+        const x = raw.habits[k] || {};
         return { checked: !!x.checked, note: h(x.note) };
       });
 
@@ -1855,8 +1878,8 @@
     s.dayWhat = cnDate(date);
     s.place = "";
     s.morningDone = MORNING_QUESTIONS.map(function(){ return false; });
-    s.habits = HABITS.map(function(_, i){
-      const h0 = (s.habits && s.habits[i]) || {};
+    s.habits = Array.from({length: habitSlotCount()}, function(_, k){
+      const h0 = (s.habits && s.habits[k]) || {};
       return { checked:false, note: h0.note || "" };
     });
     s.__blank = false;
@@ -2584,13 +2607,16 @@
       return '<div class="habit-group">' +
         '<h3 class="hg-title">' + esc(g.name) + '</h3>' +
         g.items.map(function(i){
-          const name = HABITS[i];
-          const h0 = state.habits[i] || { checked:false, note:"" };
-          return '<div class="habit">' +
-            '<input type="checkbox" class="cb" data-check="habits.' + i + '.checked" aria-label="' + esc(name) + '" ' + (h0.checked ? "checked" : "") + '>' +
+          const def = HABIT_DEFS[i];
+          const name = def.n, k = def.k;
+          const h0 = state.habits[k] || { checked:false, note:"" };
+          return '<div class="habit" data-habit-row="' + i + '">' +
+            '<span class="drag-handle" draggable="true" data-habit-drag="' + i + '" title="拖动排序" aria-label="拖动排序">⠿</span>' +
+            '<input type="checkbox" class="cb" data-check="habits.' + k + '.checked" aria-label="' + esc(name) + '" ' + (h0.checked ? "checked" : "") + '>' +
             '<span class="hname" contenteditable="true" spellcheck="false" role="textbox"' +
               ' aria-label="习惯名称：' + esc(name) + '，点一下可改名" data-habit-name="' + i + '">' + esc(name) + '</span>' +
-            ed("habits." + i + ".note", h0.note, "备注…", { cls:"note", single:true }) +
+            '<button type="button" class="habit-edit" data-habit-edit="' + i + '" title="编辑名称" aria-label="编辑名称">✎</button>' +
+            ed("habits." + k + ".note", h0.note, "备注…", { cls:"note", single:true }) +
           '</div>';
         }).join("") +
         '<button type="button" class="addbtn habit-add" data-habit-add="' + esc(g.name) + '">＋ 添加习惯</button>' +
@@ -3901,10 +3927,10 @@
     appEl.querySelectorAll("[data-habit-add]").forEach(function(btn){
       btn.addEventListener("click", function(){
         const group = btn.dataset.habitAdd || HABIT_GROUP_ORDER[0];
-        HABIT_DEFS.push({ n:"新习惯", g:group });
+        HABIT_DEFS.push({ n:"新习惯", g:group, k:habitSlotCount() });
         saveHabitDefs();
         rebuildHabits();
-        while (state.habits.length < HABITS.length) state.habits.push({ checked:false, note:"" });
+        while (state.habits.length < habitSlotCount()) state.habits.push({ checked:false, note:"" });
         scheduleSave();
         render();
         const el = appEl.querySelector('[data-habit-name="' + (HABITS.length - 1) + '"]');
@@ -3916,6 +3942,53 @@
           if (s){ s.removeAllRanges(); s.addRange(range); }
         }
         toast("已添加 1 个习惯，直接改名即可");
+      });
+    });
+
+    appEl.querySelectorAll("[data-habit-drag]").forEach(function(handle){
+      handle.addEventListener("dragstart", function(e){
+        habitDrag = Number(handle.dataset.habitDrag);
+        try{
+          e.dataTransfer.effectAllowed = "move";
+          e.dataTransfer.setData("text/plain", String(habitDrag));
+        }catch(err){}
+        const row = handle.closest(".habit");
+        if (row) row.classList.add("dragging");
+      });
+      handle.addEventListener("dragend", function(){
+        habitDrag = -1;
+        appEl.querySelectorAll(".habit.dragging,.habit.drop-here").forEach(function(el){
+          el.classList.remove("dragging","drop-here");
+        });
+      });
+    });
+    appEl.querySelectorAll("[data-habit-row]").forEach(function(row){
+      row.addEventListener("dragover", function(e){
+        if (habitDrag < 0) return;
+        e.preventDefault();
+        try{ e.dataTransfer.dropEffect = "move"; }catch(err){}
+        if (!row.classList.contains("drop-here")){
+          appEl.querySelectorAll(".habit.drop-here").forEach(function(el){ el.classList.remove("drop-here"); });
+          row.classList.add("drop-here");
+        }
+      });
+      row.addEventListener("dragleave", function(){ row.classList.remove("drop-here"); });
+      row.addEventListener("drop", function(e){
+        e.preventDefault();
+        row.classList.remove("drop-here");
+        moveHabit(habitDrag, Number(row.dataset.habitRow));
+      });
+    });
+
+    appEl.querySelectorAll("[data-habit-edit]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        const el = appEl.querySelector('[data-habit-name="' + btn.dataset.habitEdit + '"]');
+        if (!el) return;
+        el.focus();
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const s = window.getSelection();
+        if (s){ s.removeAllRanges(); s.addRange(range); }
       });
     });
 
@@ -4218,9 +4291,10 @@
     HABIT_GROUPS.forEach(function(g){
       L.push("### " + g.name, "");
       g.items.forEach(function(i){
-        const x = state.habits[i] || {};
+        const def = HABIT_DEFS[i];
+        const x = state.habits[def.k] || {};
         const note = t(x.note);
-        L.push("- " + (x.checked ? "[x] " : "[ ] ") + HABITS[i] + (note ? "　－ " + note : ""));
+        L.push("- " + (x.checked ? "[x] " : "[ ] ") + def.n + (note ? "　－ " + note : ""));
       });
       L.push("");
     });
@@ -4820,6 +4894,23 @@
     });
 
     return { weeks: weeks.length, assign: assign };
+  }
+
+  /* 拖动排序：只改 HABIT_DEFS 的排列，数据槽位 k 不变，历史记录不受影响 */
+  let habitDrag = -1;
+  function moveHabit(from, to){
+    if (from < 0 || to < 0 || from === to) return;
+    if (!HABIT_DEFS[from] || !HABIT_DEFS[to]) return;
+    const defs = HABIT_DEFS.slice();
+    const moved = defs[from];
+    moved.g = defs[to].g;
+    defs.splice(from, 1);
+    defs.splice(from < to ? to - 1 : to, 0, moved);
+    HABIT_DEFS = defs;
+    saveHabitDefs();
+    rebuildHabits();
+    render();
+    toast("顺序已更新");
   }
 
   /* 习惯名就地编辑：边输入边保存；离开时如果被删空就还原 */
